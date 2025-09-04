@@ -35,7 +35,6 @@
     }
     .riddleGlow p{margin:0 0 10px}
     .riddleGlow p:last-child{margin:0}
-    .riddleGlow b{letter-spacing:.5px}
     @keyframes glow{
       0%,100%{ text-shadow:0 0 3px #fff, 0 0 8px #fff, 0 0 18px rgba(255,255,255,.8) }
       50%   { text-shadow:0 0 6px #fff, 0 0 14px #fff, 0 0 32px rgba(255,255,255,1) }
@@ -75,7 +74,7 @@
     const cv=document.getElementById('cv');
     const ctx=cv.getContext('2d');
 
-    const TILE=40; const ROWS=12, COLS=12;
+    const TILE=40, ROWS=12, COLS=12;
 
     const LEVELS=[
       [
@@ -108,18 +107,19 @@
       ],
     ];
 
-    let levelIndex=0;
     let map=[], player={r:0,c:0};
     let heartBox={r:0,c:0}, spadeBox={r:0,c:0}, diamondBox=null, clubBox=null;
     let heartPad={r:0,c:0}, spadePad={r:0,c:0};
     let completed=false;
 
+    // celebration
     let celebrating=false, particles=[], lastTs=0, pulseT=0;
 
     function loadLevel(i){
       const raw=LEVELS[i].map(row=>row.split(''));
       map=raw; completed=false; celebrating=false; particles.length=0; pulseT=0;
       heartBox=spadeBox=heartPad=spadePad=null; diamondBox=clubBox=null; player=null;
+
       for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
         const ch=map[r][c];
         if(ch==='@'){ player={r,c}; map[r][c]='.'; }
@@ -150,6 +150,7 @@
     function tryMove(dr,dc){
       if(completed) return;
       const nr=player.r+dr, nc=player.c+dc; if(isWall(nr,nc)) return;
+
       if(isBoxAt(nr,nc)){
         const box=whichBox(nr,nc); const br=nr+dr, bc=nc+dc;
         if(isWall(br,bc) || isBoxAt(br,bc)) return;
@@ -166,6 +167,7 @@
       draw();
     }
 
+    // celebration visuals
     function startCelebration(){
       celebrating=true; particles.length=0; pulseT=0;
       if(heartPad) spawnBurst(heartPad, getVar('--heart'));
@@ -194,6 +196,7 @@
       if(particles.length>0) requestAnimationFrame(step); else celebrating=false;
     }
 
+    // Drawing
     function getVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name); }
     function tileCenter(rc){ return {x:rc.c*TILE+TILE/2, y:rc.r*TILE+TILE/2}; }
     function draw(){
@@ -219,6 +222,7 @@
       if(spadePad && r===spadePad.r && c===spadePad.c) drawSpade({r,c}, getVar('--spade'), 0.7, true);
     }
 
+    // vector shapes
     function drawHeart(rc, color, scale=0.8, pad=false){
       const {x,y}=tileCenter(rc); const s=TILE*0.38*scale;
       ctx.save(); if(pad){ ctx.fillStyle='rgba(255,51,102,0.12)'; ctx.fillRect(rc.c*TILE+4,rc.r*TILE+4,TILE-8,TILE-8); }
@@ -264,7 +268,7 @@
       ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#000'; ctx.stroke(); ctx.restore();
     }
 
-    // --- BURASI DEĞİŞTİ ---
+    // celebration overlay with auto-fit URL + dark strip
     function drawCelebration(){
       for(const p of particles){
         ctx.save(); ctx.globalAlpha=Math.max(0, p.life); ctx.fillStyle=p.color;
@@ -275,4 +279,51 @@
       if(spadePad) pads.push({rc:spadePad,color:getVar('--spade')});
       for(const pd of pads){
         const {x,y}=tileCenter(pd.rc); const r0=12+Math.sin(pulseT*6)*4;
-        ctx.save(); ctx
+        ctx.save(); ctx.strokeStyle=pd.color; ctx.globalAlpha=0.5; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(x,y,r0,0,Math.PI*2); ctx.stroke(); ctx.restore();
+      }
+
+      // === URL metni (auto-fit + arka şerit) ===
+      const urlText = 'https://bilge77.github.io/game1s1/sifre7.html';
+      const paddingX = 10, paddingY = 6;
+      const maxWidth = cv.width - paddingX * 2;
+      let fontSize = 20;
+      ctx.font = `bold ${fontSize}px ui-monospace, monospace`;
+      while (ctx.measureText(urlText).width > maxWidth && fontSize > 10) {
+        fontSize -= 1; ctx.font = `bold ${fontSize}px ui-monospace, monospace`;
+      }
+      const m = ctx.measureText(urlText);
+      const textW = m.width, textH = fontSize * 1.25;
+      const tx = (cv.width - textW) / 2, ty = 8;
+      const baselineY = ty + textH * 0.72;
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(tx - paddingX, ty, textW + paddingX*2, textH + paddingY);
+      ctx.fillStyle = '#a64dff';
+      ctx.shadowColor = '#a64dff';
+      ctx.shadowBlur = 16;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(urlText, tx, baselineY);
+      ctx.restore();
+
+      const k = (Math.sin(pulseT*5)*0.5+0.5)*0.8+0.2;
+      ctx.save(); ctx.strokeStyle=`rgba(255,213,74,${k})`; ctx.lineWidth=4; ctx.strokeRect(4,4,cv.width-8,cv.height-8); ctx.restore();
+    }
+
+    // keyboard only
+    document.addEventListener('keydown',e=>{
+      const k=e.key.toLowerCase();
+      if(k==='arrowup'||k==='w') return tryMove(-1,0);
+      if(k==='arrowdown'||k==='s') return tryMove(1,0);
+      if(k==='arrowleft'||k==='a') return tryMove(0,-1);
+      if(k==='arrowright'||k==='d') return tryMove(0,1);
+    });
+
+    // start
+    loadLevel(0);
+  })();
+  </script>
+</body>
+</html>
