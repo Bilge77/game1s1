@@ -47,6 +47,7 @@
   .final-wrap{
     position:fixed; inset:0; display:grid; place-items:center; background:#000;
     opacity:0; pointer-events:none; transition:opacity .6s ease;
+    z-index: 1000; /* <-- ÖNEMLİ: üstte olsun */
   }
   .final-wrap.show{ opacity:1; pointer-events:auto; }
   .final-card{
@@ -212,9 +213,8 @@
     requestAnimationFrame(step);
 
     // === KAPANMA GEÇİŞİ ===
-    // Biraz "RIGHT PATH" keyfi için kısa gecikme, sonra ekranı kapat ve final mesajını göster
+    // Kısa gecikme, sonra makineyi kapat ve final mesajını üstte göster
     setTimeout(()=>{
-      // Makineyi yumuşakça kapat: bulanıklaştır + küçült + sol
       machine.style.filter='blur(6px) brightness(0.8)';
       machine.style.transform='scale(0.97)';
       machine.style.opacity='0';
@@ -222,8 +222,10 @@
       // Final katmanını aç
       setTimeout(()=>{
         finalWrap.classList.add('show');
-      }, 550);
-    }, 1400); // kutlama efekti görünsün diye ~1.4s
+        // Makineyi tamamen kaldır ki asla üzerine çıkmasın
+        machine.style.display='none';
+      }, 600); // CSS transition .6s
+    }, 1400); // “RIGHT PATH” efekti ~1.4s görünsün
   }
   function spawnBurst(rc, color){
     const center = {x: rc.c*TILE+TILE/2, y: rc.r*TILE+TILE/2};
