@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Neon Sokoban — Two Seals (Right Path Edition)</title>
+  <title>Right Path Edition</title>
   <style>
     :root{
       --bg:#0b0710; --panel:#1b1320; --border:#ff89da; --neon:#ff4fd8;
@@ -283,8 +283,9 @@
           ctx.beginPath(); ctx.arc(x,y,r0,0,Math.PI*2); ctx.stroke(); ctx.restore();
         }
         ctx.save(); ctx.font='bold 36px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.shadowColor=getVar('--done'); ctx.shadowBlur=18; ctx.fillStyle=getVar('--done');
-        ctx.fillText('RIGHT PATH', cv.width/2, 30);
+        /* değişiklik: pembe glow ve URL metni */
+        ctx.shadowColor=getVar('--neon'); ctx.shadowBlur=18; ctx.fillStyle=getVar('--neon');
+        ctx.fillText('https://bilge77.github.io/game1s1/sifre7.html', cv.width/2, 30);
         ctx.restore();
         const k = (Math.sin(pulseT*5)*0.5+0.5)*0.8+0.2;
         ctx.save(); ctx.strokeStyle=rgba(255,213,74,${k}); ctx.lineWidth=4; ctx.strokeRect(4,4,cv.width-8,cv.height-8); ctx.restore();
