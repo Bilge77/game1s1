@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Letter</title>
+<style>
+  :root{
+    --bg:#000; --ink:#f5f5f7; --glow:#b78cff;
+    --accent1:#ff3b81; --accent2:#49c6ff;
+  }
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+
+  /* hafif CRT/film grain + vignette */
+  .fx-grain::before{
+    content:""; position:fixed; inset:-20%; pointer-events:none; opacity:.08; mix-blend-mode:screen;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:180px 180px; animation:grain 1.3s steps(6) infinite;
+  }
+  .fx-grain::after{
+    content:""; position:fixed; inset:0; pointer-events:none;
+    background:radial-gradient(1200px 700px at 50% -10%, transparent 35%, rgba(0,0,0,.35) 75%);
+  }
+  @keyframes grain{to{transform:translate3d(3px,3px,0)}}
+
+  .wrap{
+    width:min(92vw,900px); max-height:86vh; padding:28px clamp(18px,3vw,32px);
+    border:1px solid rgba(255,255,255,.08); border-radius:16px;
+    background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    box-shadow: 0 0 80px rgba(183,140,255,.12), inset 0 0 30px rgba(255,255,255,.03);
+    overflow:auto; position:relative;
+  }
+
+  /* titreşimli neon kenar */
+  .wrap::before{
+    content:""; position:absolute; inset:-2px; border-radius:18px;
+    background: conic-gradient(from 0deg, rgba(183,140,255,.25), rgba(73,198,255,.18), rgba(255,59,129,.18), rgba(183,140,255,.25));
+    filter: blur(16px); opacity:.35; z-index:-1; animation:halo 8s linear infinite;
+  }
+  @keyframes halo{to{transform:rotate(360deg)}}
+
+  /* mektup metni */
+  #letter{
+    line-height:1.7; font-size:clamp(16px,2.1vw,20px);
+    text-shadow: 0 0 8px rgba(183,140,255,.22), 0 0 22px rgba(73,198,255,.12);
+    white-space:pre-wrap;
+  }
+
+  /* tek tek belirme */
+  .line{opacity:0; filter:blur(6px); transform:translateY(6px);}
+  .line.show{
+    opacity:1; filter:blur(0); transform:translateY(0);
+    transition: opacity .55s ease, filter .55s ease, transform .55s ease;
+  }
+
+  /* harflerde hafif shimmer */
+  .shimmer{
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(183,140,255,.4) 45%, rgba(73,198,255,.35) 55%, rgba(255,255,255,0) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:shine 2.8s ease-in-out infinite;
+  }
+  @keyframes shine{
+    0%,10%{background-position:-200% 0}
+    40%,60%{background-position:200% 0}
+    100%{background-position:200% 0}
+  }
+
+  /* glitch efekt */
+  .glitch {
+    position: relative; display:inline-block;
+  }
+  .glitch::before, .glitch::after{
+    content: attr(data-text);
+    position:absolute; left:0; top:0; width:100%; overflow:hidden; pointer-events:none;
+  }
+  .glitch::before{
+    color: var(--accent1); clip-path: inset(0 0 0 0);
+    animation: g1 1.6s infinite linear alternate-reverse;
+    mix-blend-mode:screen; opacity:.6;
+  }
+  .glitch::after{
+    color: var(--accent2); clip-path: inset(0 0 0 0);
+    animation: g2 1.3s infinite linear alternate;
+    mix-blend-mode:screen; opacity:.6;
+  }
+  @keyframes g1{
+    0%{transform:translate(0,0)} 20%{transform:translate(-1px,-1px)}
+    40%{transform:translate(1px,1px)} 60%{transform:translate(-2px,1px)}
+    80%{transform:translate(2px,-1px)} 100%{transform:translate(0,0)}
+  }
+  @keyframes g2{
+    0%{transform:translate(0,0)} 25%{transform:translate(1px,-1px)}
+    50%{transform:translate(-1px,1px)} 75%{transform:translate(2px,1px)}
+    100%{transform:translate(0,0)}
+  }
+
+  /* alt ipucu ve ilerleme */
+  .sub{
+    opacity:.7; font-size:12px; letter-spacing:.06em; margin-top:14px;
+  }
+  .progress{
+    height:2px; width:0; background:linear-gradient(90deg, var(--glow), transparent);
+    box-shadow:0 0 10px var(--glow); transition:width .35s ease;
+  }
+</style>
+</head>
+<body class="fx-grain">
+  <div class="wrap">
+    <div id="letter"></div>
+    <div class="progress" id="bar"></div>
+    <div class="sub" id="hint"></div>
+  </div>
+
+<script>
+/* ========= AYARLAR ========= */
+const TYPE_SPEED = 18;        // harf yazma hızı (ms)
+const LINE_DELAY = 200;       // satır arası gecikme (ms)
+const USE_GLITCH = true;      // başlıklara glitch uygula
+const SHIMMER_ALL = true;     // tüm harflerde shimmer uygula
+
+/* ======= BURAYA MEKTUBU YAPIŞTIR ======= */
+const LETTER = `
+[Your letter starts here…]
+I wanted to give you this earlier.
+But maybe the delay was a gift: it let me build something braver,
+stranger, and more *us*.
+
+Replace this whole text with your real letter.
+Add blank lines to start new paragraphs.
+
+— b
+`;
+/* ====================================== */
+
+const container = document.getElementById('letter');
+const bar = document.getElementById('bar');
+const hint = document.getElementById('hint');
+
+function makeLineHTML(text){
+  // İlk satır “başlık” gibi görünüyorsa glitch verelim
+  const isTitle = text.trim().length <= 42 && /^[\[\(«“"']?[\w\-—]/i.test(text.trim());
+  const safe = text
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+
+  const inner = SHIMMER_ALL
+    ? `<span class="shimmer">${safe}</span>`
+    : safe;
+
+  if(USE_GLITCH && isTitle){
+    return `<div class="line"><span class="glitch" data-text="${safe}">${inner}</span></div>`;
+  }
+  return `<div class="line">${inner}</div>`;
+}
+
+function typeLine(el, text, done){
+  el.innerHTML = ""; // progressive type
+  const chars = text.split("");
+  let i = 0;
+  const tick = () => {
+    if(i < chars.length){
+      const ch = chars[i++];
+      el.innerHTML += SHIMMER_ALL ? `<span class="shimmer">${ch === '\n' ? '<br>' : ch}</span>` : (ch === '\n' ? '<br>' : ch);
+      setTimeout(tick, TYPE_SPEED);
+    } else {
+      done && done();
+    }
+  };
+  tick();
+}
+
+function animateLetter(){
+  const parts = LETTER.trim().split(/\n\s*\n/); // paragraflara böl
+  const lines = parts.map(p => p.trim()).filter(Boolean);
+  const total = lines.length;
+  let shown = 0;
+
+  function next(){
+    if(shown >= total){
+      hint.textContent = ""; bar.style.width = "100%";
+      return;
+    }
+    const html = makeLineHTML(lines[shown]);
+    container.insertAdjacentHTML('beforeend', html);
+    const node = container.lastElementChild;
+    // görünür yap
+    setTimeout(()=> node.classList.add('show'), 10);
+
+    // yazma efekti (satırın içine yaz)
+    const raw = lines[shown];
+    const target = node.querySelector('.glitch') || node;
+    // yalnızca yazı yazılacak düz element:
+    // glitch içinde shimmer span varsa, ayrı işleyelim
+    if(target.classList.contains('glitch')){
+      // glitch'in içindeki gerçek görünen metin target'ın kendisi
+      typeLine(target, raw, () => {
+        shown++;
+        bar.style.width = `${Math.round((shown/total)*100)}%`;
+        setTimeout(next, LINE_DELAY);
+      });
+    }else{
+      typeLine(target, raw, () => {
+        shown++;
+        bar.style.width = `${Math.round((shown/total)*100)}%`;
+        setTimeout(next, LINE_DELAY);
+      });
+    }
+  }
+
+  hint.textContent = "decoding…";
+  next();
+}
+
+document.addEventListener('DOMContentLoaded', animateLetter);
+</script>
+</body>
+</html>
