@@ -14,19 +14,19 @@
   body{
     margin:0;min-height:100vh;display:grid;place-items:center;
     background:radial-gradient(1200px 600px at 50% 10%, #21102a 0%, var(--bg) 55%, #050308 100%);
-    font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--scan); overflow:hidden;
+    font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--scan)
   }
   .machine{
     width:min(96vw,520px);background:linear-gradient(180deg,#24152d,var(--panel));
     border:10px solid var(--border);border-radius:20px;
     box-shadow:0 0 50px var(--neon),inset 0 0 20px rgba(255,79,216,.15);
-    padding:12px;display:flex;flex-direction:column;gap:12px;
-    transition:opacity .6s ease, transform .6s ease, filter .6s ease;
+    padding:12px;display:flex;flex-direction:column;gap:12px
   }
   .screen{
     background:#000;border:3px solid var(--scan);border-radius:12px;
     display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px
   }
+  /* glow yazı */
   .riddleGlow{
     color:#fff; text-align:left; line-height:1.35; margin-bottom:8px;
     width:100%; max-width:460px; padding:12px 14px; border-radius:12px;
@@ -42,30 +42,10 @@
     50%   { text-shadow:0 0 6px #fff, 0 0 14px #fff, 0 0 32px rgba(255,255,255,1) }
   }
   canvas{background:#000;border:1px solid var(--scan);border-radius:8px}
-
-  /* Final ekran (her şey “kapanınca” görünen) */
-  .final-wrap{
-    position:fixed; inset:0; display:grid; place-items:center; background:#000;
-    opacity:0; pointer-events:none; transition:opacity .6s ease;
-    z-index: 1000; /* <-- ÖNEMLİ: üstte olsun */
-  }
-  .final-wrap.show{ opacity:1; pointer-events:auto; }
-  .final-card{
-    max-width:min(92vw,720px);
-    border:3px solid var(--done);
-    border-radius:16px;
-    padding:18px 20px;
-    color:#ffd54a; text-align:center;
-    box-shadow:0 0 30px rgba(255,213,74,.35);
-  }
-  .final-card b{ color:#fff; text-shadow:0 0 10px #fff; }
-  .final-card a{
-    color:#7fcaff; text-decoration:underline; word-break:break-all;
-  }
 </style>
 </head>
 <body>
-  <div class="machine" id="machine">
+  <div class="machine">
     <div class="screen">
       <!-- BEYAZ GLOW RIDDLE -->
       <div class="riddleGlow" aria-label="Riddle">
@@ -98,24 +78,10 @@
     </div>
   </div>
 
-  <!-- Final mesaj katmanı (başta gizli) -->
-  <div class="final-wrap" id="final">
-    <div class="final-card">
-      <p style="margin:0; font-size:18px;">open this link:</p>
-      <p style="margin:6px 0 0; font-size:20px;">
-        <a href="https://bilge77.github.io/game1s1/sifre7.html" target="_blank" rel="noopener">
-          https://bilge77.github.io/game1s1/sifre7.html
-        </a>
-      </p>
-    </div>
-  </div>
-
 <script>
 (function(){
   const cv=document.getElementById('cv');
   const ctx=cv.getContext('2d');
-  const machine=document.getElementById('machine');
-  const finalWrap=document.getElementById('final');
 
   const TILE=40; // 12x12 grid fits 480px
   const ROWS=12, COLS=12;
@@ -211,21 +177,6 @@
     spawnBurst(spadePad, getVar('--spade'));
     spawnBurst({r:(heartPad.r+spadePad.r)>>1, c:(heartPad.c+spadePad.c)>>1}, getVar('--done'));
     requestAnimationFrame(step);
-
-    // === KAPANMA GEÇİŞİ ===
-    // Kısa gecikme, sonra makineyi kapat ve final mesajını üstte göster
-    setTimeout(()=>{
-      machine.style.filter='blur(6px) brightness(0.8)';
-      machine.style.transform='scale(0.97)';
-      machine.style.opacity='0';
-
-      // Final katmanını aç
-      setTimeout(()=>{
-        finalWrap.classList.add('show');
-        // Makineyi tamamen kaldır ki asla üzerine çıkmasın
-        machine.style.display='none';
-      }, 600); // CSS transition .6s
-    }, 1400); // “RIGHT PATH” efekti ~1.4s görünsün
   }
   function spawnBurst(rc, color){
     const center = {x: rc.c*TILE+TILE/2, y: rc.r*TILE+TILE/2};
