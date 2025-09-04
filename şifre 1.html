@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detective Puzzle</title>
+<style>
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #ffe6f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.phone, .story {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.phone-container {
+    width: 320px;
+    height: 520px;
+    background: #ff99c8;
+    border-radius: 50px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.screen {
+    width: 90%;
+    height: 350px;
+    background: #fff0f5;
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+}
+
+input {
+    font-size: 24px;
+    width: 160px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #ff66b2;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 60px);
+    grid-gap: 10px;
+    margin-top: 20px;
+}
+
+.keypad button {
+    width: 60px;
+    height: 60px;
+    font-size: 20px;
+    border-radius: 10px;
+    background-color: #ff66b2;
+    color: white;
+    cursor: pointer;
+}
+
+.keypad button:hover {
+    background-color: #ff3399;
+}
+
+button.submit {
+    margin-top: 15px;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 14px;
+    background-color: #ff4da6;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+button.submit:hover {
+    background-color: #ff3399;
+}
+
+.message {
+    margin-top: 10px;
+    font-size: 16px;
+    color: red;
+    text-align: center;
+}
+
+.story {
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 40px;
+    box-sizing: border-box;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.story pre {
+    font-size: 18px;
+    line-height: 1.5;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 0 10px #ff66b2, 0 0 20px #ff66b2;
+    white-space: pre-wrap;
+}
+</style>
+</head>
+<body>
+
+<audio id="bgMusic" src="your_background_music.mp3" loop autoplay></audio>
+<audio id="keySound" src="your_telegraph_sound.mp3"></audio>
+
+<!-- PHONE SCREEN -->
+<div class="phone" id="phoneScreen">
+    <div class="phone-container">
+        <div class="screen">
+            <h2>Enter the code</h2>
+            <input type="text" id="codeInput" placeholder="00000000" readonly>
+            <div class="keypad">
+                <button onclick="pressKey('1')">1</button>
+                <button onclick="pressKey('2')">2</button>
+                <button onclick="pressKey('3')">3</button>
+                <button onclick="pressKey('4')">4</button>
+                <button onclick="pressKey('5')">5</button>
+                <button onclick="pressKey('6')">6</button>
+                <button onclick="pressKey('7')">7</button>
+                <button onclick="pressKey('8')">8</button>
+                <button onclick="pressKey('9')">9</button>
+                <button onclick="pressKey('0')">0</button>
+                <button onclick="clearInput()">C</button>
+            </div>
+            <button class="submit" onclick="checkCode()">Submit</button>
+            <div class="message" id="message"></div>
+        </div>
+    </div>
+</div>
+
+<!-- STORY SCREEN -->
+<div class="story" id="storyScreen">
+<pre id="storyText"></pre>
+</div>
+
+<script>
+const keySound = document.getElementById('keySound');
+const storyScreen = document.getElementById('storyScreen');
+const storyText = document.getElementById('storyText');
+
+const storyContent = `
+Hello Detective, I am Bilge the Shadow. You are probably confused. 
+I used to be just a simple person living in this world. 
+Now, you are in a body whose counterpart is married to me here, ik it's .. weird. 
+In this universe... I was in love with you, but I realized through studying parallel universes that it was beyond that. 
+I saw how we were together in every universe, how I left letters for you in each one. Just like By007 did in detroit universe.
+What I want is for you to follow the clues to reach the main universe, 
+to the root where our relationship truly exists as reality, 
+where BY-007, I, and all versions of us in every universe converge. 
+I think the person in the main universe left these puzzles. Reach them. 
+First, go to my home and take the watch there. I know I can not able to help you as much as I want to, but it's for security. I just know that watch is important, it’s definitely part of a puzzle.
+`;
+
+function pressKey(num) {
+    keySound.currentTime = 0;
+    keySound.play();
+    document.getElementById('codeInput').value += num;
+}
+
+function clearInput() {
+    keySound.currentTime = 0;
+    keySound.play();
+    document.getElementById('codeInput').value = '';
+}
+
+function checkCode() {
+    keySound.currentTime = 0;
+    keySound.play();
+    const input = document.getElementById('codeInput').value.trim();
+    const message = document.getElementById('message');
+    const phoneScreen = document.getElementById('phoneScreen');
+    const correctCode = "25082025";
+
+    if(input === correctCode) {
+        // ANIMATION: PHONE FADE OUT
+        phoneScreen.style.transition = "opacity 1s ease-in-out";
+        phoneScreen.style.opacity = 0;
+
+        setTimeout(() => {
+            phoneScreen.style.display = "none";
+            storyScreen.style.display = "flex";
+            storyScreen.style.opacity = 1;
+            // SLOW TYPE EFFECT
+            typeStory(storyContent);
+        }, 1000);
+    } else {
+        message.textContent = "Incorrect code. Try again baby";
+    }
+}
+
+function typeStory(text) {
+    let i = 0;
+    storyText.textContent = "";
+    function typing() {
+        if (i < text.length) {
+            storyText.textContent += text[i];
+            i++;
+            setTimeout(typing, 30); // her karakter 30ms ile beliriyor
+        }
+    }
+    typing();
+}
+</script>
+
+</body>
+</html>
