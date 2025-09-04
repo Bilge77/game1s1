@@ -114,14 +114,12 @@
     let heartPad={r:0,c:0}, spadePad={r:0,c:0};
     let completed=false;
 
-    // celebration
     let celebrating=false, particles=[], lastTs=0, pulseT=0;
 
     function loadLevel(i){
       const raw=LEVELS[i].map(row=>row.split(''));
       map=raw; completed=false; celebrating=false; particles.length=0; pulseT=0;
       heartBox=spadeBox=heartPad=spadePad=null; diamondBox=clubBox=null; player=null;
-
       for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
         const ch=map[r][c];
         if(ch==='@'){ player={r,c}; map[r][c]='.'; }
@@ -152,7 +150,6 @@
     function tryMove(dr,dc){
       if(completed) return;
       const nr=player.r+dr, nc=player.c+dc; if(isWall(nr,nc)) return;
-
       if(isBoxAt(nr,nc)){
         const box=whichBox(nr,nc); const br=nr+dr, bc=nc+dc;
         if(isWall(br,bc) || isBoxAt(br,bc)) return;
@@ -169,7 +166,6 @@
       draw();
     }
 
-    // celebration visuals
     function startCelebration(){
       celebrating=true; particles.length=0; pulseT=0;
       if(heartPad) spawnBurst(heartPad, getVar('--heart'));
@@ -198,7 +194,6 @@
       if(particles.length>0) requestAnimationFrame(step); else celebrating=false;
     }
 
-    // Drawing
     function getVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name); }
     function tileCenter(rc){ return {x:rc.c*TILE+TILE/2, y:rc.r*TILE+TILE/2}; }
     function draw(){
@@ -224,7 +219,6 @@
       if(spadePad && r===spadePad.r && c===spadePad.c) drawSpade({r,c}, getVar('--spade'), 0.7, true);
     }
 
-    // vector shapes
     function drawHeart(rc, color, scale=0.8, pad=false){
       const {x,y}=tileCenter(rc); const s=TILE*0.38*scale;
       ctx.save(); if(pad){ ctx.fillStyle='rgba(255,51,102,0.12)'; ctx.fillRect(rc.c*TILE+4,rc.r*TILE+4,TILE-8,TILE-8); }
@@ -270,6 +264,7 @@
       ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#000'; ctx.stroke(); ctx.restore();
     }
 
+    // --- BURASI DEĞİŞTİ ---
     function drawCelebration(){
       for(const p of particles){
         ctx.save(); ctx.globalAlpha=Math.max(0, p.life); ctx.fillStyle=p.color;
@@ -281,26 +276,4 @@
       for(const pd of pads){
         const {x,y}=tileCenter(pd.rc); const r0=12+Math.sin(pulseT*6)*4;
         ctx.save(); ctx.strokeStyle=pd.color; ctx.globalAlpha=0.5; ctx.lineWidth=3;
-        ctx.beginPath(); ctx.arc(x,y,r0,0,Math.PI*2); ctx.stroke(); ctx.restore();
-      }
-      ctx.save(); ctx.font='bold 36px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.shadowColor=getVar('--neon'); ctx.shadowBlur=18; ctx.fillStyle=getVar('--neon');
-      ctx.fillText('https://bilge77.github.io/game1s1/sifre7.html', cv.width/2, 30);
-      ctx.restore();
-      const k = (Math.sin(pulseT*5)*0.5+0.5)*0.8+0.2;
-      ctx.save(); ctx.strokeStyle=`rgba(255,213,74,${k})`; ctx.lineWidth=4; ctx.strokeRect(4,4,cv.width-8,cv.height-8); ctx.restore();
-    }
-
-    document.addEventListener('keydown',e=>{
-      const k=e.key.toLowerCase();
-      if(k==='arrowup'||k==='w') return tryMove(-1,0);
-      if(k==='arrowdown'||k==='s') return tryMove(1,0);
-      if(k==='arrowleft'||k==='a') return tryMove(0,-1);
-      if(k==='arrowright'||k==='d') return tryMove(0,1);
-    });
-
-    loadLevel(levelIndex);
-  })();
-  </script>
-</body>
-</html>
+        ctx.beginPath(); ctx.arc(x,y,r0,0,Math
