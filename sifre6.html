@@ -220,9 +220,9 @@
           ctx.fillStyle=getVar('--wall'); ctx.fillRect(x,y,TILE,TILE);
           ctx.strokeStyle=getVar('--scan'); ctx.lineWidth=2; ctx.strokeRect(x+2,y+2,TILE-4,TILE-4);
         }
-        // pads
-        if(r===heartPad.r && c===heartPad.c) drawHeart({r,c}, getVar('--heart'), 0.7, true);
-        if(r===spadePad.r && c===spadePad.c) drawSpade({r,c}, getVar('--spade'), 0.7, true);
+        // pads (NULL KONTROLÜ)
+        if(heartPad && r===heartPad.r && c===heartPad.c) drawHeart({r,c}, getVar('--heart'), 0.7, true);
+        if(spadePad && r===spadePad.r && c===spadePad.c) drawSpade({r,c}, getVar('--spade'), 0.7, true);
       }
 
       // vector shapes
@@ -276,7 +276,10 @@
           ctx.save(); ctx.globalAlpha=Math.max(0, p.life); ctx.fillStyle=p.color;
           ctx.fillRect(p.x-2,p.y-2,4,4); ctx.restore();
         }
-        const pads=[{rc:heartPad,color:getVar('--heart')},{rc:spadePad,color=getVar('--spade')}];
+        // pads (NULL KONTROLÜ)
+        const pads=[];
+        if(heartPad) pads.push({rc:heartPad,color:getVar('--heart')});
+        if(spadePad) pads.push({rc:spadePad,color:getVar('--spade')});
         for(const pd of pads){
           const {x,y}=tileCenter(pd.rc); const r0=12+Math.sin(pulseT*6)*4;
           ctx.save(); ctx.strokeStyle=pd.color; ctx.globalAlpha=0.5; ctx.lineWidth=3;
@@ -288,7 +291,7 @@
         ctx.fillText('https://bilge77.github.io/game1s1/sifre7.html', cv.width/2, 30);
         ctx.restore();
         const k = (Math.sin(pulseT*5)*0.5+0.5)*0.8+0.2;
-        /* HATA DÜZELTİLDİ: backtick ile template literal */
+        /* template literal ile backtick */
         ctx.save(); ctx.strokeStyle=`rgba(255,213,74,${k})`; ctx.lineWidth=4; ctx.strokeRect(4,4,cv.width-8,cv.height-8); ctx.restore();
       }
 
@@ -307,4 +310,3 @@
   </script>
 </body>
 </html>
-
