@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Parallel Map Puzzle</title>
+<style>
+  :root{
+    --pink:#ff66b2; --pink-2:#ff99c8; --neon:#ff80ab; --ok:#00ffaa;
+  }
+  body{
+    margin:0; background:#ffe6f2; font-family:system-ui, Arial, sans-serif;
+    display:flex; align-items:center; justify-content:center; min-height:100vh; text-align:center;
+  }
+  .wrap{max-width:900px; padding:16px;}
+  .riddle{
+    margin:0 0 18px; color:#111; font-weight:600; line-height:1.35;
+  }
+  .riddle em{font-style:normal; color:#c2185b;}
+
+  /* phone */
+  .phone{
+    width:360px; height:640px; margin:0 auto; border-radius:40px;
+    background:linear-gradient(145deg, var(--pink-2), #ffc4da);
+    box-shadow:0 20px 50px rgba(0,0,0,.25), inset 0 6px 12px rgba(255,255,255,.6);
+    padding:22px; position:relative;
+  }
+  .speaker{position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    width:80px; height:8px; border-radius:6px; background:#e8a9c2;}
+  .screen{
+    position:relative; width:100%; height:100%; border-radius:26px; overflow:hidden;
+    background:#fff; box-shadow:inset 0 0 18px rgba(0,0,0,.12);
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* map layer */
+  .map{
+    position:absolute; inset:0;
+    background:url("map.jpg") center/contain no-repeat; /* Eğer PNG kullanıyorsan dosya adını map.png yap */
+    transition:opacity .9s ease;
+  }
+
+  /* clickable points */
+  .point{
+    position:absolute; width:20px; height:20px; border-radius:50%;
+    background:#ff4081; border:2px solid #fff; cursor:pointer;
+    box-shadow:0 0 10px var(--neon), 0 0 20px var(--neon);
+    transform:translate(-50%,-50%); transition:transform .15s, box-shadow .15s, background .15s;
+    touch-action:manipulation;
+  }
+  .point:hover{ transform:translate(-50%,-50%) scale(1.15); }
+  .point.ok{ background:#19e68c; box-shadow:0 0 12px var(--ok),0 0 22px var(--ok); }
+
+  /* subtle labels */
+  .label{
+    position:absolute; transform:translate(-50%, -120%);
+    font-size:11px; letter-spacing:.02em; color:#000; 
+    background:rgba(255,255,255,.7); border-radius:6px; padding:2px 6px;
+    opacity:.55; pointer-events:none; user-select:none; 
+    box-shadow:0 0 6px rgba(0,0,0,.08);
+    transition:opacity .15s ease;
+  }
+  .point:hover + .label{ opacity:.9; }
+
+  /* result overlay */
+  .result{
+    position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+    background:#000; color:#fff; padding:28px; box-sizing:border-box;
+    text-shadow:0 0 10px var(--neon), 0 0 20px var(--neon); font-size:20px;
+  }
+  .result.show{ display:flex; animation:fadeIn 1.2s ease forwards; }
+  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+  .fadeout{ opacity:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="riddle">
+    “My most special day is <em>your</em> day. Every year, right beside you, the years slipped by as we celebrated somewhere since 2023 in different places, yet always together… even before that.”
+  </p>
+
+  <div class="phone" aria-label="pink phone">
+    <div class="speaker"></div>
+    <div class="screen">
+      <div class="map" id="map"></div>
+
+      <!-- three far-apart hotspots (order is 1→2→3). Adjust positions as you like -->
+      <button class="point" id="p1" style="top:20%; left:24%;" aria-label="point"></button>
+      <span class="label" aria-hidden="true" style="top:20%; left:24%;">ChefEdwards</span>
+
+      <button class="point" id="p2" style="top:52%; left:78%;" aria-label="point"></button>
+      <span class="label" aria-hidden="true" style="top:52%; left:78%;">CoffeeshopCompany</span>
+
+      <button class="point" id="p3" style="top:82%; left:38%;" aria-label="point"></button>
+      <span class="label" aria-hidden="true" style="top:82%; left:38%;">Forum Gloria</span>
+
+      <div class="result" id="result">
+        <div>
+          <div style="opacity:.8;letter-spacing:.15em">COORDINATES</div>
+          <div style="font-size:26px;margin-top:6px">40.9993249, 39.7598470</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- sounds -->
+<audio id="click" src="telegraph.mp3" preload="auto"></audio>
+<audio id="bg" src="bg_music.mp3" preload="auto" loop></audio>
+
+<script>
+  // Start bg music after first interaction (mobile friendly)
+  const bg = document.getElementById('bg');
+  const clickS = document.getElementById('click');
+  const armBG = () => { bg.play().catch(()=>{}); document.removeEventListener('pointerdown', armBG); };
+  document.addEventListener('pointerdown', armBG, {once:true});
+
+  const sequence = ['p1','p2','p3']; // internal order, labels are just visual
+  let step = 0;
+
+  function playClick(){
+    try{ clickS.currentTime = 0; clickS.play(); }catch(e){}
+  }
+
+  function resetPoints(){
+    step = 0;
+    document.querySelectorAll('.point').forEach(el=>el.classList.remove('ok'));
+  }
+
+  document.querySelectorAll('.point').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      playClick();
+      if(el.id === sequence[step]){
+        el.classList.add('ok');
+        step++;
+        if(step === sequence.length){
+          // success → fade map, reveal coordinates
+          document.getElementById('map').classList.add('fadeout');
+          setTimeout(()=>document.getElementById('result').classList.add('show'), 700);
+        }
+      }else{
+        // wrong order → soft reset
+        resetPoints();
+      }
+    });
+  });
+</script>
+
+
+</body>
+</html>
