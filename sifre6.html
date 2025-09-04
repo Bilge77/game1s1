@@ -26,7 +26,6 @@
       background:#000;border:3px solid var(--scan);border-radius:12px;
       display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px
     }
-    /* glow yazı */
     .riddleGlow{
       color:#fff; text-align:left; line-height:1.35; margin-bottom:8px;
       width:100%; max-width:460px; padding:12px 14px; border-radius:12px;
@@ -47,30 +46,23 @@
 <body>
   <div class="machine">
     <div class="screen">
-      <!-- BEYAZ GLOW RIDDLE -->
       <div class="riddleGlow" aria-label="Riddle">
         <p>The table stays busy—shuffle, cut, deal.<br>
         In the middle of it, Heart and Spade keep arriving near the same square.</p>
-
         <p>Spade is the point that knows where to press.<br>
         Heart is the warm beat that knows when to move.<br>
         Heart steps onto it and carries them forward.</p>
-
         <p>Diamond flashes like a sign. Club drifts like a leaf.<br>
         They pass by. This part isn’t theirs.</p>
-
         <p>The path tightens. Spade leans, opening a narrow lane.<br>
         Heart İS keeping time.<br>
         Corners aren’t so sharp with Spade there.<br>
         Open spaces aren’t so wide with Heart there.</p>
-
         <p>A small hush falls over the felt.<br>
         Light tilts. The maze has an answer, and it isn’t loud.<br>
         Two marks meet their places—one edge, one pulse.<br>
         It feels simple, like a lock turning once.</p>
-
         <p>The room seems to read it, then breathe.</p>
-
         <p><b>RIGHT PATH.</b></p>
       </div>
 
@@ -79,234 +71,236 @@
   </div>
 
   <script>
-    (function(){
-      const cv=document.getElementById('cv');
-      const ctx=cv.getContext('2d');
+  (function(){
+    const cv=document.getElementById('cv');
+    const ctx=cv.getContext('2d');
 
-      const TILE=40; // 12x12 grid fits 480px
-      const ROWS=12, COLS=12;
+    const TILE=40; const ROWS=12, COLS=12;
 
-      // Legend (12 chars each row):
-      // # wall, . floor, H heart pad, S spade pad,
-      // h heart box, s spade box, d diamond box (optional), c club box (optional), @ player
-      const LEVELS=[
-        [
-          "############",
-          "#@...#..H..#",
-          "#..h.#.....#",
-          "#....#..###.#",
-          "#..###..sS..#",
-          "#........#.#",
-          "#..c..#..#.#",
-          "#..d..#..#.#",
-          "#..#..#..#.#",
-          "#..#..#....#",
-          "#....#.....#",
-          "############",
-        ],
-        [
-          "############",
-          "#@....h..H.#",
-          "#..##.#..#.#",
-          "#..#..#..#.#",
-          "#..#..s..#.#",
-          "#..##.#..#.#",
-          "#....#..#..#",
-          "###.###.#..#",
-          "#..c....#..#",
-          "#..d....#S.#",
-          "#........#.#",
-          "############",
-        ],
-      ];
+    const LEVELS=[
+      [
+        "############",
+        "#@...#..H..#",
+        "#..h.#.....#",
+        "#....#..###.#",
+        "#..###..sS..#",
+        "#........#.#",
+        "#..c..#..#.#",
+        "#..d..#..#.#",
+        "#..#..#..#.#",
+        "#..#..#....#",
+        "#....#.....#",
+        "############",
+      ],
+      [
+        "############",
+        "#@....h..H.#",
+        "#..##.#..#.#",
+        "#..#..#..#.#",
+        "#..#..s..#.#",
+        "#..##.#..#.#",
+        "#....#..#..#",
+        "###.###.#..#",
+        "#..c....#..#",
+        "#..d....#S.#",
+        "#........#.#",
+        "############",
+      ],
+    ];
 
-      let levelIndex=0;
-      let map=[], player={r:0,c:0};
-      let heartBox={r:0,c:0}, spadeBox={r:0,c:0}, diamondBox=null, clubBox=null;
-      let heartPad={r:0,c:0}, spadePad={r:0,c:0};
-      let completed=false;
+    let levelIndex=0;
+    let map=[], player={r:0,c:0};
+    let heartBox={r:0,c:0}, spadeBox={r:0,c:0}, diamondBox=null, clubBox=null;
+    let heartPad={r:0,c:0}, spadePad={r:0,c:0};
+    let completed=false;
 
-      // celebration
-      let celebrating=false, particles=[], lastTs=0, pulseT=0;
+    // celebration
+    let celebrating=false, particles=[], lastTs=0, pulseT=0;
 
-      function loadLevel(i){
-        const raw=LEVELS[i].map(row=>row.split(''));
-        map=raw; completed=false; celebrating=false; particles.length=0; pulseT=0;
-        heartBox=spadeBox=heartPad=spadePad=null; diamondBox=clubBox=null; player=null;
+    function loadLevel(i){
+      const raw=LEVELS[i].map(row=>row.split(''));
+      map=raw; completed=false; celebrating=false; particles.length=0; pulseT=0;
+      heartBox=spadeBox=heartPad=spadePad=null; diamondBox=clubBox=null; player=null;
 
-        for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-          const ch=map[r][c];
-          if(ch==='@'){ player={r,c}; map[r][c]='.'; }
-          if(ch==='h'){ heartBox={r,c}; map[r][c]='.'; }
-          if(ch==='s'){ spadeBox={r,c}; map[r][c]='.'; }
-          if(ch==='d'){ diamondBox={r,c}; map[r][c]='.'; }
-          if(ch==='c'){ clubBox={r,c}; map[r][c]='.'; }
-          if(ch==='H'){ heartPad={r,c}; }
-          if(ch==='S'){ spadePad={r,c}; }
-        }
-        draw();
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+        const ch=map[r][c];
+        if(ch==='@'){ player={r,c}; map[r][c]='.'; }
+        if(ch==='h'){ heartBox={r,c}; map[r][c]='.'; }
+        if(ch==='s'){ spadeBox={r,c}; map[r][c]='.'; }
+        if(ch==='d'){ diamondBox={r,c}; map[r][c]='.'; }
+        if(ch==='c'){ clubBox={r,c}; map[r][c]='.'; }
+        if(ch==='H'){ heartPad={r,c}; }
+        if(ch==='S'){ spadePad={r,c}; }
       }
+      draw();
+    }
 
-      const isWall=(r,c)=> map[r][c]==='#';
-      const isBoxAt=(r,c)=> (heartBox.r===r&&heartBox.c===c)||(spadeBox.r===r&&spadeBox.c===c)|| (diamondBox && diamondBox.r===r&&diamondBox.c===c) || (clubBox && clubBox.r===r&&clubBox.c===c);
-      function whichBox(r,c){ if(heartBox.r===r&&heartBox.c===c) return 'H'; if(spadeBox.r===r&&spadeBox.c===c) return 'S'; if(diamondBox && diamondBox.r===r&&diamondBox.c===c) return 'D'; if(clubBox && clubBox.r===r&&clubBox.c===c) return 'C'; return null; }
+    const isWall=(r,c)=> map[r][c]==='#';
+    const isBoxAt=(r,c)=> (heartBox && heartBox.r===r&&heartBox.c===c) ||
+                           (spadeBox && spadeBox.r===r&&spadeBox.c===c) ||
+                           (diamondBox && diamondBox.r===r&&diamondBox.c===c) ||
+                           (clubBox && clubBox.r===r&&clubBox.c===c);
 
-      function tryMove(dr,dc){
-        if(completed) return;
-        const nr=player.r+dr, nc=player.c+dc; if(isWall(nr,nc)) return;
+    function whichBox(r,c){
+      if(heartBox && heartBox.r===r&&heartBox.c===c) return 'H';
+      if(spadeBox && spadeBox.r===r&&spadeBox.c===c) return 'S';
+      if(diamondBox && diamondBox.r===r&&diamondBox.c===c) return 'D';
+      if(clubBox && clubBox.r===r&&clubBox.c===c) return 'C';
+      return null;
+    }
 
-        if(isBoxAt(nr,nc)){
-          const box=whichBox(nr,nc); const br=nr+dr, bc=nc+dc;
-          if(isWall(br,bc) || isBoxAt(br,bc)) return;
-          if(box==='H') heartBox={r:br,c:bc};
-          else if(box==='S') spadeBox={r:br,c:bc};
-          else if(box==='D') diamondBox={r:br,c:bc};
-          else if(box==='C') clubBox={r:br,c:bc};
-        }
-        player={r:nr,c:nc};
-        const done = (heartBox.r===heartPad.r && heartBox.c===heartPad.c) &&
-                     (spadeBox.r===spadePad.r && spadeBox.c===spadePad.c);
-        if(done && !completed){ completed=true; startCelebration(); }
-        draw();
+    function tryMove(dr,dc){
+      if(completed) return;
+      const nr=player.r+dr, nc=player.c+dc; if(isWall(nr,nc)) return;
+
+      if(isBoxAt(nr,nc)){
+        const box=whichBox(nr,nc); const br=nr+dr, bc=nc+dc;
+        if(isWall(br,bc) || isBoxAt(br,bc)) return;
+        if(box==='H') heartBox={r:br,c:bc};
+        else if(box==='S') spadeBox={r:br,c:bc};
+        else if(box==='D') diamondBox={r:br,c:bc};
+        else if(box==='C') clubBox={r:br,c:bc};
       }
+      player={r:nr,c:nc};
+      const done = heartBox && spadeBox && heartPad && spadePad &&
+                   (heartBox.r===heartPad.r && heartBox.c===heartPad.c) &&
+                   (spadeBox.r===spadePad.r && spadeBox.c===spadePad.c);
+      if(done && !completed){ completed=true; startCelebration(); }
+      draw();
+    }
 
-      // celebration visuals
-      function startCelebration(){
-        celebrating=true; particles.length=0; pulseT=0;
-        spawnBurst(heartPad, getVar('--heart'));
-        spawnBurst(spadePad, getVar('--spade'));
+    // celebration visuals
+    function startCelebration(){
+      celebrating=true; particles.length=0; pulseT=0;
+      if(heartPad) spawnBurst(heartPad, getVar('--heart'));
+      if(spadePad) spawnBurst(spadePad, getVar('--spade'));
+      if(heartPad && spadePad)
         spawnBurst({r:(heartPad.r+spadePad.r)>>1, c:(heartPad.c+spadePad.c)>>1}, getVar('--done'));
-        requestAnimationFrame(step);
+      requestAnimationFrame(step);
+    }
+    function spawnBurst(rc, color){
+      const center = {x: rc.c*TILE+TILE/2, y: rc.r*TILE+TILE/2};
+      for(let i=0;i<60;i++){
+        const a = Math.random()*Math.PI*2;
+        const sp = 80+Math.random()*140;
+        particles.push({x:center.x, y:center.y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life:0.9+Math.random()*0.7, color});
       }
-      function spawnBurst(rc, color){
-        const center = {x: rc.c*TILE+TILE/2, y: rc.r*TILE+TILE/2};
-        for(let i=0;i<60;i++){
-          const a = Math.random()*Math.PI*2;
-          const sp = 80+Math.random()*140;
-          particles.push({x:center.x, y:center.y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, life:0.9+Math.random()*0.7, color});
-        }
+    }
+    function step(ts){
+      if(!celebrating) return; if(!lastTs) lastTs=ts;
+      const dt=Math.min(0.033,(ts-lastTs)/1000); lastTs=ts; pulseT+=dt;
+      const G=120;
+      for(const p of particles){
+        p.vx*=0.98; p.vy = p.vy*0.98 + G*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt;
       }
-      function step(ts){
-        if(!celebrating) return; if(!lastTs) lastTs=ts;
-        const dt=Math.min(0.033,(ts-lastTs)/1000); lastTs=ts; pulseT+=dt;
-        const G=120;
-        for(const p of particles){
-          p.vx*=0.98; p.vy = p.vy*0.98 + G*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt;
-        }
-        particles = particles.filter(p=> p.life>0);
-        draw();
-        if(particles.length>0) requestAnimationFrame(step); else celebrating=false;
-      }
+      particles = particles.filter(p=> p.life>0);
+      draw();
+      if(particles.length>0) requestAnimationFrame(step); else celebrating=false;
+    }
 
-      // Drawing
-      function getVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name); }
-      function tileCenter(rc){ return {x:rc.c*TILE+TILE/2, y:rc.r*TILE+TILE/2}; }
-      function draw(){
-        ctx.clearRect(0,0,cv.width,cv.height);
-        for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) drawTile(r,c);
-        if(diamondBox) drawCrate(diamondBox, getVar('--diamond'), 'diamond');
-        if(clubBox)    drawCrate(clubBox,    getVar('--club'),    'club');
-        drawCrate(heartBox, getVar('--heart'), 'heart');
-        drawCrate(spadeBox, getVar('--spade'), 'spade');
-        drawPlayer(player);
-        if(celebrating){ drawCelebration(); }
-      }
+    // Drawing
+    function getVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name); }
+    function tileCenter(rc){ return {x:rc.c*TILE+TILE/2, y:rc.r*TILE+TILE/2}; }
+    function draw(){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) drawTile(r,c);
+      if(diamondBox) drawCrate(diamondBox, getVar('--diamond'), 'diamond');
+      if(clubBox)    drawCrate(clubBox,    getVar('--club'),    'club');
+      if(heartBox)   drawCrate(heartBox, getVar('--heart'), 'heart');
+      if(spadeBox)   drawCrate(spadeBox, getVar('--spade'), 'spade');
+      drawPlayer(player);
+      if(celebrating){ drawCelebration(); }
+    }
 
-      function drawTile(r,c){
-        const x=c*TILE, y=r*TILE;
-        ctx.fillStyle=getVar('--floor'); ctx.fillRect(x,y,TILE,TILE);
-        ctx.strokeStyle='rgba(255,122,217,0.08)'; ctx.strokeRect(x+0.5,y+0.5,TILE-1,TILE-1);
-        if(map[r][c]==='#'){
-          ctx.fillStyle=getVar('--wall'); ctx.fillRect(x,y,TILE,TILE);
-          ctx.strokeStyle=getVar('--scan'); ctx.lineWidth=2; ctx.strokeRect(x+2,y+2,TILE-4,TILE-4);
-        }
-        // pads (NULL KONTROLÜ)
-        if(heartPad && r===heartPad.r && c===heartPad.c) drawHeart({r,c}, getVar('--heart'), 0.7, true);
-        if(spadePad && r===spadePad.r && c===spadePad.c) drawSpade({r,c}, getVar('--spade'), 0.7, true);
+    function drawTile(r,c){
+      const x=c*TILE, y=r*TILE;
+      ctx.fillStyle=getVar('--floor'); ctx.fillRect(x,y,TILE,TILE);
+      ctx.strokeStyle='rgba(255,122,217,0.08)'; ctx.strokeRect(x+0.5,y+0.5,TILE-1,TILE-1);
+      if(map[r][c]==='#'){
+        ctx.fillStyle=getVar('--wall'); ctx.fillRect(x,y,TILE,TILE);
+        ctx.strokeStyle=getVar('--scan'); ctx.lineWidth=2; ctx.strokeRect(x+2,y+2,TILE-4,TILE-4);
       }
+      if(heartPad && r===heartPad.r && c===heartPad.c) drawHeart({r,c}, getVar('--heart'), 0.7, true);
+      if(spadePad && r===spadePad.r && c===spadePad.c) drawSpade({r,c}, getVar('--spade'), 0.7, true);
+    }
 
-      // vector shapes
-      function drawHeart(rc, color, scale=0.8, pad=false){
-        const {x,y}=tileCenter(rc); const s=TILE*0.38*scale;
-        ctx.save(); if(pad){ ctx.fillStyle='rgba(255,51,102,0.12)'; ctx.fillRect(rc.c*TILE+4,rc.r*TILE+4,TILE-8,TILE-8); }
-        ctx.translate(x,y); ctx.beginPath();
-        ctx.moveTo(0,s*0.2); ctx.bezierCurveTo(s*0.9,-s*0.6,s*0.9,s*0.35,0,s*0.95);
-        ctx.bezierCurveTo(-s*0.9,s*0.35,-s*0.9,-s*0.6,0,s*0.2); ctx.closePath();
-        ctx.fillStyle=color; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle="#000"; ctx.stroke(); ctx.restore();
-      }
-      function drawSpade(rc, color, scale=0.8, pad=false){
-        const {x,y}=tileCenter(rc); const s=TILE*0.38*scale;
-        ctx.save(); if(pad){ ctx.fillStyle='rgba(127,202,255,0.12)'; ctx.fillRect(rc.c*TILE+4,rc.r*TILE+4,TILE-8,TILE-8); }
-        ctx.translate(x,y); ctx.beginPath();
-        ctx.moveTo(0,-s*0.2); ctx.bezierCurveTo(s*0.9,s*0.6,s*0.9,-s*0.35,0,-s*0.95);
-        ctx.bezierCurveTo(-s*0.9,-s*0.35,-s*0.9,s*0.6,0,-s*0.2); ctx.closePath();
-        ctx.fillStyle=color; ctx.fill(); ctx.fillRect(-s*0.18,-s*0.1,s*0.36,s*0.55); ctx.restore();
-      }
-      function drawDiamond(rc, color, scale=0.8){
-        const {x,y}=tileCenter(rc); const s=TILE*0.38*scale;
-        ctx.save(); ctx.translate(x,y); ctx.beginPath();
-        ctx.moveTo(0,-s); ctx.lineTo(s,0); ctx.lineTo(0,s); ctx.lineTo(-s,0); ctx.closePath();
-        ctx.fillStyle=color; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle="#000"; ctx.stroke(); ctx.restore();
-      }
-      function drawClub(rc, color, scale=0.8){
-        const {x,y}=tileCenter(rc); const s=TILE*0.28*scale;
-        ctx.save(); ctx.translate(x,y); ctx.fillStyle=color; ctx.beginPath();
-        ctx.arc(-s,0,s,0,Math.PI*2); ctx.arc(s,0,s,0,Math.PI*2); ctx.arc(0,-s,s,0,Math.PI*2); ctx.fill();
-        ctx.fillRect(-s*0.4, 0, s*0.8, s*2); ctx.lineWidth=2; ctx.strokeStyle="#000";
-        ctx.strokeRect(-s*0.4, 0, s*0.8, s*2); ctx.restore();
-      }
-      function drawCrate(rc, color, type){
-        const x=rc.c*TILE+6,y=rc.r*TILE+6,w=TILE-12,h=TILE-12;
-        ctx.save(); ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.fillRect(x,y,w,h);
-        ctx.strokeStyle=color; ctx.lineWidth=3; ctx.strokeRect(x,y,w,h);
-        if(type==='heart') drawHeart(rc,color,0.55);
-        else if(type==='spade') drawSpade(rc,color,0.55);
-        else if(type==='diamond') drawDiamond(rc,color,0.55);
-        else if(type==='club') drawClub(rc,color,0.55);
-        ctx.restore();
-      }
-      function drawPlayer(rc){
-        const {x,y}=tileCenter(rc); const s=TILE*0.32;
-        ctx.save(); ctx.fillStyle=getVar('--player'); ctx.beginPath(); ctx.arc(x,y,s,0,Math.PI*2);
-        ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#000'; ctx.stroke(); ctx.restore();
-      }
+    // vector shapes
+    function drawHeart(rc, color, scale=0.8, pad=false){
+      const {x,y}=tileCenter(rc); const s=TILE*0.38*scale;
+      ctx.save(); if(pad){ ctx.fillStyle='rgba(255,51,102,0.12)'; ctx.fillRect(rc.c*TILE+4,rc.r*TILE+4,TILE-8,TILE-8); }
+      ctx.translate(x,y); ctx.beginPath();
+      ctx.moveTo(0,s*0.2); ctx.bezierCurveTo(s*0.9,-s*0.6,s*0.9,s*0.35,0,s*0.95);
+      ctx.bezierCurveTo(-s*0.9,s*0.35,-s*0.9,-s*0.6,0,s*0.2); ctx.closePath();
+      ctx.fillStyle=color; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle="#000"; ctx.stroke(); ctx.restore();
+    }
+    function drawSpade(rc, color, scale=0.8, pad=false){
+      const {x,y}=tileCenter(rc); const s=TILE*0.38*scale;
+      ctx.save(); if(pad){ ctx.fillStyle='rgba(127,202,255,0.12)'; ctx.fillRect(rc.c*TILE+4,rc.r*TILE+4,TILE-8,TILE-8); }
+      ctx.translate(x,y); ctx.beginPath();
+      ctx.moveTo(0,-s*0.2); ctx.bezierCurveTo(s*0.9,s*0.6,s*0.9,-s*0.35,0,-s*0.95);
+      ctx.bezierCurveTo(-s*0.9,-s*0.35,-s*0.9,s*0.6,0,-s*0.2); ctx.closePath();
+      ctx.fillStyle=color; ctx.fill(); ctx.fillRect(-s*0.18,-s*0.1,s*0.36,s*0.55); ctx.restore();
+    }
+    function drawDiamond(rc, color, scale=0.8){
+      const {x,y}=tileCenter(rc); const s=TILE*0.38*scale;
+      ctx.save(); ctx.translate(x,y); ctx.beginPath();
+      ctx.moveTo(0,-s); ctx.lineTo(s,0); ctx.lineTo(0,s); ctx.lineTo(-s,0); ctx.closePath();
+      ctx.fillStyle=color; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle="#000"; ctx.stroke(); ctx.restore();
+    }
+    function drawClub(rc, color, scale=0.8){
+      const {x,y}=tileCenter(rc); const s=TILE*0.28*scale;
+      ctx.save(); ctx.translate(x,y); ctx.fillStyle=color; ctx.beginPath();
+      ctx.arc(-s,0,s,0,Math.PI*2); ctx.arc(s,0,s,0,Math.PI*2); ctx.arc(0,-s,s,0,Math.PI*2); ctx.fill();
+      ctx.fillRect(-s*0.4, 0, s*0.8, s*2); ctx.lineWidth=2; ctx.strokeStyle="#000";
+      ctx.strokeRect(-s*0.4, 0, s*0.8, s*2); ctx.restore();
+    }
+    function drawCrate(rc, color, type){
+      const x=rc.c*TILE+6,y=rc.r*TILE+6,w=TILE-12,h=TILE-12;
+      ctx.save(); ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.fillRect(x,y,w,h);
+      ctx.strokeStyle=color; ctx.lineWidth=3; ctx.strokeRect(x,y,w,h);
+      if(type==='heart') drawHeart(rc,color,0.55);
+      else if(type==='spade') drawSpade(rc,color,0.55);
+      else if(type==='diamond') drawDiamond(rc,color,0.55);
+      else if(type==='club') drawClub(rc,color,0.55);
+      ctx.restore();
+    }
+    function drawPlayer(rc){
+      const {x,y}=tileCenter(rc); const s=TILE*0.32;
+      ctx.save(); ctx.fillStyle=getVar('--player'); ctx.beginPath(); ctx.arc(x,y,s,0,Math.PI*2);
+      ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#000'; ctx.stroke(); ctx.restore();
+    }
 
-      function drawCelebration(){
-        for(const p of particles){
-          ctx.save(); ctx.globalAlpha=Math.max(0, p.life); ctx.fillStyle=p.color;
-          ctx.fillRect(p.x-2,p.y-2,4,4); ctx.restore();
-        }
-        // pads (NULL KONTROLÜ)
-        const pads=[];
-        if(heartPad) pads.push({rc:heartPad,color:getVar('--heart')});
-        if(spadePad) pads.push({rc:spadePad,color:getVar('--spade')});
-        for(const pd of pads){
-          const {x,y}=tileCenter(pd.rc); const r0=12+Math.sin(pulseT*6)*4;
-          ctx.save(); ctx.strokeStyle=pd.color; ctx.globalAlpha=0.5; ctx.lineWidth=3;
-          ctx.beginPath(); ctx.arc(x,y,r0,0,Math.PI*2); ctx.stroke(); ctx.restore();
-        }
-        ctx.save(); ctx.font='bold 36px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-        /* pembe glow + URL metni */
-        ctx.shadowColor=getVar('--neon'); ctx.shadowBlur=18; ctx.fillStyle=getVar('--neon');
-        ctx.fillText('https://bilge77.github.io/game1s1/sifre7.html', cv.width/2, 30);
-        ctx.restore();
-        const k = (Math.sin(pulseT*5)*0.5+0.5)*0.8+0.2;
-        /* template literal ile backtick */
-        ctx.save(); ctx.strokeStyle=`rgba(255,213,74,${k})`; ctx.lineWidth=4; ctx.strokeRect(4,4,cv.width-8,cv.height-8); ctx.restore();
+    function drawCelebration(){
+      for(const p of particles){
+        ctx.save(); ctx.globalAlpha=Math.max(0, p.life); ctx.fillStyle=p.color;
+        ctx.fillRect(p.x-2,p.y-2,4,4); ctx.restore();
       }
+      const pads=[];
+      if(heartPad) pads.push({rc:heartPad,color:getVar('--heart')});
+      if(spadePad) pads.push({rc:spadePad,color:getVar('--spade')});
+      for(const pd of pads){
+        const {x,y}=tileCenter(pd.rc); const r0=12+Math.sin(pulseT*6)*4;
+        ctx.save(); ctx.strokeStyle=pd.color; ctx.globalAlpha=0.5; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(x,y,r0,0,Math.PI*2); ctx.stroke(); ctx.restore();
+      }
+      ctx.save(); ctx.font='bold 36px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.shadowColor=getVar('--neon'); ctx.shadowBlur=18; ctx.fillStyle=getVar('--neon');
+      ctx.fillText('https://bilge77.github.io/game1s1/sifre7.html', cv.width/2, 30);
+      ctx.restore();
+      const k = (Math.sin(pulseT*5)*0.5+0.5)*0.8+0.2;
+      ctx.save(); ctx.strokeStyle=`rgba(255,213,74,${k})`; ctx.lineWidth=4; ctx.strokeRect(4,4,cv.width-8,cv.height-8); ctx.restore();
+    }
 
-      // keyboard only
-      document.addEventListener('keydown',e=>{
-        const k=e.key.toLowerCase();
-        if(k==='arrowup'||k==='w') return tryMove(-1,0);
-        if(k==='arrowdown'||k==='s') return tryMove(1,0);
-        if(k==='arrowleft'||k==='a') return tryMove(0,-1);
-        if(k==='arrowright'||k==='d') return tryMove(0,1);
-      });
+    document.addEventListener('keydown',e=>{
+      const k=e.key.toLowerCase();
+      if(k==='arrowup'||k==='w') return tryMove(-1,0);
+      if(k==='arrowdown'||k==='s') return tryMove(1,0);
+      if(k==='arrowleft'||k==='a') return tryMove(0,-1);
+      if(k==='arrowright'||k==='d') return tryMove(0,1);
+    });
 
-      // boot
-      loadLevel(levelIndex);
-    })();
+    loadLevel(levelIndex);
+  })();
   </script>
 </body>
 </html>
