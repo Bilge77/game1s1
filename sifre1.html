@@ -3,108 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Detective Puzzle</title>
+<title>Detective Puzzle — Pink Neon</title>
 <style>
-body {
+  :root{
+    --bg1:#ff6fb3; --bg2:#ff9ad1; --bg3:#ffc2e1;
+    --pink:#ff66b2; --pink-deep:#ff3399; --pink-soft:#ff99c8;
+    --ink:#0f0c12; --white:#ffffff;
+  }
+
+  /* ===== Page background (animated pink gradient) ===== */
+  @keyframes bgShift{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+  body {
     margin: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: #ffe6f0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-}
+    font-family: system-ui, Arial, sans-serif;
+    color:#111;
+    display:flex; justify-content:center; align-items:center;
+    height:100vh; overflow:hidden;
+    background: linear-gradient(120deg, var(--bg1), var(--bg2), var(--bg3));
+    background-size: 200% 200%;
+    animation: bgShift 12s ease-in-out infinite;
+  }
 
-.phone, .story {
+  /* soft pink particles */
+  .sparkles{
+    position:fixed; inset:-10%;
+    pointer-events:none; opacity:.25;
+    background:
+      radial-gradient(6px 6px at 10% 20%, #fff, transparent 60%),
+      radial-gradient(6px 6px at 70% 30%, #fff, transparent 60%),
+      radial-gradient(6px 6px at 30% 85%, #fff, transparent 60%),
+      radial-gradient(6px 6px at 85% 75%, #fff, transparent 60%);
+    filter:blur(.6px);
+    animation: twinkle 6s linear infinite;
+  }
+  @keyframes twinkle { 50% { transform: translateY(-6px) } }
+
+  /* ===== Layers ===== */
+  .phone, .story {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-}
+  }
 
-.phone-container {
+  /* ===== Phone container (glass + neon) ===== */
+  .phone-container {
     width: 320px;
     height: 520px;
-    background: #ff99c8;
-    border-radius: 50px;
+    border-radius: 46px;
     padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
+    background: linear-gradient(140deg, rgba(255,255,255,.35), rgba(255,255,255,.15));
+    box-shadow:
+      0 30px 60px rgba(0,0,0,.28),
+      inset 0 0 0 2px rgba(255,255,255,.35),
+      0 0 36px rgba(255,105,180,.45);
+    backdrop-filter: blur(6px);
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    position:relative;
+  }
+  .phone-container::after{
+    content:""; position:absolute; inset:10px; border-radius:38px;
+    background: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0));
+    pointer-events:none;
+  }
 
-.screen {
+  /* notch/speaker */
+  .speaker{
+    position:absolute; top:12px; left:50%; transform:translateX(-50%);
+    width:80px; height:8px; border-radius:8px; background:rgba(255,255,255,.65);
+  }
+
+  /* ===== Inner screen ===== */
+  .screen {
     width: 90%;
     height: 350px;
-    background: #fff0f5;
-    border-radius: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
-}
+    background: #fff0f7;
+    border-radius: 24px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    box-shadow: inset 0 0 18px rgba(0,0,0,.12), 0 10px 20px rgba(255, 51, 153, .15);
+    position:relative; overflow:hidden;
+  }
+  /* scanline gloss */
+  .screen::before{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,.15) 0 1px, transparent 1px 3px);
+    opacity:.2;
+  }
 
-input {
+  h2{ margin:0 0 10px; color:#cc0c7c; letter-spacing:.02em; }
+
+  input {
     font-size: 24px;
-    width: 160px;
+    width: 180px;
     padding: 12px;
-    border-radius: 12px;
-    border: 2px solid #ff66b2;
-    text-align: center;
-    margin-top: 20px;
-}
-
-.keypad {
-    display: grid;
-    grid-template-columns: repeat(3, 60px);
-    grid-gap: 10px;
-    margin-top: 20px;
-}
-
-.keypad button {
-    width: 60px;
-    height: 60px;
-    font-size: 20px;
-    border-radius: 10px;
-    background-color: #ff66b2;
-    color: white;
-    cursor: pointer;
-}
-
-.keypad button:hover {
-    background-color: #ff3399;
-}
-
-button.submit {
-    margin-top: 15px;
-    padding: 12px 22px;
-    border: none;
     border-radius: 14px;
-    background-color: #ff4da6;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-}
-
-button.submit:hover {
-    background-color: #ff3399;
-}
-
-.message {
-    margin-top: 10px;
-    font-size: 16px;
-    color: red;
+    border: 2px solid var(--pink);
+    background:#fff;
     text-align: center;
-}
+    margin-top: 8px;
+    box-shadow: 0 0 0 4px rgba(255,102,178,.12), 0 6px 14px rgba(255,51,153,.18);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  input:focus{ outline:none; transform: translateY(-1px); box-shadow:0 0 0 5px rgba(255,102,178,.18), 0 10px 18px rgba(255,51,153,.24); }
 
-.story {
-    background-color: black;
+  /* ===== Keypad ===== */
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 62px);
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .keypad button {
+    width: 62px; height: 62px;
+    font-size: 20px; font-weight:700; letter-spacing:.02em;
+    border-radius: 14px; border: none;
+    color: white;
+    background: linear-gradient(180deg, var(--pink), var(--pink-deep));
+    box-shadow: 0 8px 18px rgba(255,51,153,.35), inset 0 -2px 0 rgba(0,0,0,.12);
+    cursor: pointer;
+    transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
+  }
+  .keypad button:hover { filter:brightness(1.05) }
+  .keypad button:active { transform: translateY(2px) scale(.98); box-shadow: 0 4px 12px rgba(255,51,153,.35), inset 0 -1px 0 rgba(0,0,0,.12); }
+
+  button.submit {
+    margin-top: 14px;
+    padding: 12px 22px;
+    border: none; border-radius: 16px;
+    background: linear-gradient(180deg, #ff5fb5, #ff2a94);
+    color: white; font-size: 18px; font-weight:800; letter-spacing:.02em;
+    cursor: pointer;
+    box-shadow: 0 10px 22px rgba(255,51,153,.4), 0 0 0 6px rgba(255,102,178,.12);
+    transition: transform .12s ease, filter .15s ease, box-shadow .15s ease;
+  }
+  button.submit:hover { filter:brightness(1.06) }
+  button.submit:active { transform: translateY(2px) }
+
+  .message {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #cc0c7c;
+    text-align: center;
+    min-height: 22px;
+  }
+
+  /* wrong code shake */
+  @keyframes shake {
+    0%,100%{ transform:translateX(0) }
+    20%{ transform:translateX(-6px) }
+    40%{ transform:translateX(6px) }
+    60%{ transform:translateX(-4px) }
+    80%{ transform:translateX(4px) }
+  }
+  .shake { animation: shake .35s ease }
+
+  /* subtle success glow overlay */
+  .success-glow{
+    position:absolute; inset:0; border-radius:24px; pointer-events:none;
+    background: radial-gradient(600px 300px at 50% 100%, rgba(255,105,180,.35), rgba(255,105,180,0) 60%);
+    opacity:0; transition:opacity .6s ease;
+  }
+  .glow-on{ opacity:1 }
+
+  /* ===== Story screen ===== */
+  .story {
+    background: radial-gradient(900px 600px at 50% 100%, rgba(255, 102, 178, .18), rgba(0,0,0,.85));
     color: #fff;
     text-align: center;
     padding: 40px;
@@ -115,60 +183,73 @@ button.submit:hover {
     align-items: center;
     overflow-y: auto;
     opacity: 0;
-    transition: opacity 1.5s ease-in-out;
-}
+    transition: opacity 1.2s ease-in-out;
+  }
+  .story pre {
+    font-size: 18px; line-height: 1.55; text-align: center; color: #fff;
+    text-shadow: 0 0 10px #ff66b2, 0 0 24px #ff66b2;
+    white-space: pre-wrap; margin:0 auto; max-width:760px;
+  }
+  /* blinking caret feel */
+  .story pre::after{
+    content:""; display:inline-block; width:10px; height:1.1em; margin-left:6px; vertical-align:-2px;
+    background: #ffd2ea; border-radius:2px; opacity:.9;
+    animation: caret 1s steps(2,end) infinite;
+  }
+  @keyframes caret{ 50%{opacity:.2} }
 
-.story pre {
-    font-size: 18px;
-    line-height: 1.5;
-    text-align: center;
-    color: #fff;
-    text-shadow: 0 0 10px #ff66b2, 0 0 20px #ff66b2;
-    white-space: pre-wrap;
-}
 </style>
 </head>
 <body>
+
+<div class="sparkles" aria-hidden="true"></div>
 
 <audio id="bgMusic" src="your_background_music.mp3" loop autoplay></audio>
 <audio id="keySound" src="your_telegraph_sound.mp3"></audio>
 
 <!-- PHONE SCREEN -->
 <div class="phone" id="phoneScreen">
-    <div class="phone-container">
-        <div class="screen">
-            <h2>Enter the code</h2>
-            <input type="text" id="codeInput" placeholder="00000000" readonly>
-            <div class="keypad">
-                <button onclick="pressKey('1')">1</button>
-                <button onclick="pressKey('2')">2</button>
-                <button onclick="pressKey('3')">3</button>
-                <button onclick="pressKey('4')">4</button>
-                <button onclick="pressKey('5')">5</button>
-                <button onclick="pressKey('6')">6</button>
-                <button onclick="pressKey('7')">7</button>
-                <button onclick="pressKey('8')">8</button>
-                <button onclick="pressKey('9')">9</button>
-                <button onclick="pressKey('0')">0</button>
-                <button onclick="clearInput()">C</button>
-            </div>
-            <button class="submit" onclick="checkCode()">Submit</button>
-            <div class="message" id="message"></div>
-        </div>
+  <div class="phone-container" id="phoneBox">
+    <div class="speaker"></div>
+    <div class="screen" id="screen">
+      <div class="success-glow" id="glow"></div>
+      <h2>Enter the code</h2>
+      <input type="text" id="codeInput" placeholder="00000000" readonly>
+
+      <div class="keypad">
+        <button onclick="pressKey('1')">1</button>
+        <button onclick="pressKey('2')">2</button>
+        <button onclick="pressKey('3')">3</button>
+        <button onclick="pressKey('4')">4</button>
+        <button onclick="pressKey('5')">5</button>
+        <button onclick="pressKey('6')">6</button>
+        <button onclick="pressKey('7')">7</button>
+        <button onclick="pressKey('8')">8</button>
+        <button onclick="pressKey('9')">9</button>
+        <button onclick="pressKey('0')" style="grid-column:2">0</button>
+        <button onclick="clearInput()">C</button>
+      </div>
+
+      <button class="submit" onclick="checkCode()">Submit</button>
+      <div class="message" id="message"></div>
     </div>
+  </div>
 </div>
 
 <!-- STORY SCREEN -->
 <div class="story" id="storyScreen">
-<pre id="storyText"></pre>
+  <pre id="storyText"></pre>
 </div>
 
 <script>
-const keySound = document.getElementById('keySound');
-const storyScreen = document.getElementById('storyScreen');
-const storyText = document.getElementById('storyText');
+  const keySound = document.getElementById('keySound');
+  const storyScreen = document.getElementById('storyScreen');
+  const storyText = document.getElementById('storyText');
+  const phoneScreen = document.getElementById('phoneScreen');
+  const screenBox = document.getElementById('screen');
+  const glow = document.getElementById('glow');
 
-const storyContent = `
+  const storyContent = `
 Hello Detective, I am Bilge the Shadow. You are probably confused. 
 I used to be just a simple person living in this world. 
 Now, you are in a body whose counterpart is married to me here, ik it's .. weird. 
@@ -181,57 +262,56 @@ I think the person in the main universe left these puzzles. Reach them.
 First, go to my home and take the watch there. I know I can not able to help you as much as I want to, but it's for security. I just know that watch is important, it’s definitely part of a puzzle.
 `;
 
-function pressKey(num) {
-    keySound.currentTime = 0;
-    keySound.play();
+  function pressKey(num) {
+    try { keySound.currentTime = 0; keySound.play(); } catch(e){}
     document.getElementById('codeInput').value += num;
-}
+  }
 
-function clearInput() {
-    keySound.currentTime = 0;
-    keySound.play();
+  function clearInput() {
+    try { keySound.currentTime = 0; keySound.play(); } catch(e){}
     document.getElementById('codeInput').value = '';
-}
+  }
 
-function checkCode() {
-    keySound.currentTime = 0;
-    keySound.play();
+  function checkCode() {
+    try { keySound.currentTime = 0; keySound.play(); } catch(e){}
     const input = document.getElementById('codeInput').value.trim();
     const message = document.getElementById('message');
-    const phoneScreen = document.getElementById('phoneScreen');
     const correctCode = "25082025";
 
-    if(input === correctCode) {
-        // ANIMATION: PHONE FADE OUT
-        phoneScreen.style.transition = "opacity 1s ease-in-out";
-        phoneScreen.style.opacity = 0;
+    if (input === correctCode) {
+      // pink success glow
+      glow.classList.add('glow-on');
 
-        setTimeout(() => {
-            phoneScreen.style.display = "none";
-            storyScreen.style.display = "flex";
-            storyScreen.style.opacity = 1;
-            // SLOW TYPE EFFECT
-            typeStory(storyContent);
-        }, 1000);
+      // fade out phone, then show story (same flow)
+      phoneScreen.style.transition = "opacity 1s ease-in-out";
+      phoneScreen.style.opacity = 0;
+
+      setTimeout(() => {
+        phoneScreen.style.display = "none";
+        storyScreen.style.display = "flex";
+        requestAnimationFrame(()=>{ storyScreen.style.opacity = 1; });
+        typeStory(storyContent);
+      }, 900);
     } else {
-        message.textContent = "Incorrect code. Try again baby";
+      message.textContent = "Incorrect code. Try again baby";
+      // visual shake only (logic unchanged)
+      screenBox.classList.remove('shake');
+      void screenBox.offsetWidth; // restart animation
+      screenBox.classList.add('shake');
     }
-}
+  }
 
-function typeStory(text) {
+  function typeStory(text) {
     let i = 0;
     storyText.textContent = "";
-    function typing() {
-        if (i < text.length) {
-            storyText.textContent += text[i];
-            i++;
-            setTimeout(typing, 30); // her karakter 30ms ile beliriyor
-        }
-    }
-    typing();
-}
+    (function typing() {
+      if (i < text.length) {
+        storyText.textContent += text[i++];
+        setTimeout(typing, 28); // still fast & smooth
+      }
+    })();
+  }
 </script>
 
 </body>
 </html>
-
