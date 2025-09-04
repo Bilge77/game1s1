@@ -1,51 +1,40 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Glovebox — YEAR Lock</title>
 <style>
-  :root{
-    --bg:#0a0b0f;
-    --ink:#e7e3ea;
-    --accent:#ff4da6;   /* pembe */
-    --accent2:#ff79c6;  /* açık pembe */
-    --ok:#ff79c6;       /* unlocked glow rengi pembe */
-    --err:#ff375f;
-    --fade:900ms
-  }
+  :root{--bg:#0a0b0f;--ink:#e7e3ea;--accent:#ff4da6;--accent2:#9b4dff;--ok:#43e97b;--err:#ff375f;--fade:900ms}
   html,body{height:100%}
   body{margin:0;background:radial-gradient(1200px 800px at 50% -10%,#141624,var(--bg));color:var(--ink);font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;display:flex;align-items:center;justify-content:center;overflow:hidden}
   body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:screen;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");background-size:160px 160px;animation:grain 1.5s steps(6) infinite}
   @keyframes grain{to{transform:translate3d(3px,3px,0)}}
   .wrap{width:min(92vw,780px);text-align:center}
-  .title{margin:0 0 18px;letter-spacing:.02em;font-weight:700;font-size:clamp(18px,2.6vw,24px);color:#ffb3de;text-shadow:0 0 12px rgba(255,77,166,.35)}
+  .title{margin:0 0 18px;letter-spacing:.02em;font-weight:700;font-size:clamp(18px,2.6vw,24px);color:#c9c4ff;text-shadow:0 0 12px rgba(155,77,255,.25)}
   .glove{position:relative;margin:0 auto;border-radius:18px;width:min(92vw,720px);height:260px;background:linear-gradient(180deg,#0d0f15,#0b0c12 40%,#0a0b10);box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 0 0 1px #1b1f2a,inset 0 0 24px rgba(0,0,0,.6);overflow:hidden}
-  .glove:before{content:"";position:absolute;inset:6px;border-radius:12px;box-shadow:inset 0 0 0 1px #1a1d27,inset 0 0 38px rgba(255,77,166,.14)}
+  .glove:before{content:"";position:absolute;inset:6px;border-radius:12px;box-shadow:inset 0 0 0 1px #1a1d27,inset 0 0 38px rgba(255,77,166,.08)}
   .etch{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-family:"Courier New",monospace;letter-spacing:.4em;font-weight:700;color:#444a5e;opacity:.7;text-indent:.4em;text-shadow:0 1px 0 #0b0d14,0 -1px 0 #1c2130;user-select:none}
   .door{position:absolute;top:54px;bottom:0;width:50%;background:linear-gradient(180deg,#10131d,#0d1019);box-shadow:inset 0 0 0 1px #161a24}
   .left{left:0;transform-origin:left center;transition:transform var(--fade) ease}
   .right{right:0;transform-origin:right center;transition:transform var(--fade) ease}
-  .lock{position:absolute;top:94px;left:50%;transform:translateX(-50%);width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#1c2233,#0c0f18 55%);box-shadow:0 0 0 2px #1e2331,0 0 38px rgba(255,77,166,.32),inset 0 0 24px rgba(0,0,0,.7)}
+  .lock{position:absolute;top:94px;left:50%;transform:translateX(-50%);width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#1c2233,#0c0f18 55%);box-shadow:0 0 0 2px #1e2331,0 0 34px rgba(155,77,255,.18),inset 0 0 24px rgba(0,0,0,.7)}
   .dot{position:absolute;inset:26px;border-radius:50%;background:#0b0e16;box-shadow:inset 0 0 0 2px #1d2230,inset 0 0 20px rgba(0,0,0,.6)}
   .bar{display:flex;gap:10px;justify-content:center;margin:18px auto 0;align-items:center}
   .field{width:160px;background:#0f1320;color:#e8e3f2;border:1px solid #24293a;outline:none;border-radius:10px;text-align:center;font-size:22px;letter-spacing:.15em;padding:10px 12px;caret-color:#ff4da6;transition:box-shadow .2s ease,border-color .2s ease}
-  .field:focus{border-color:#3a3f56;box-shadow:0 0 0 3px rgba(255,77,166,.25)}
+  .field:focus{border-color:#3a3f56;box-shadow:0 0 0 3px rgba(155,77,255,.18)}
   .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
-  .msg{height:22px;margin-top:10px;font-size:14px;opacity:.9}
-  .msg.err{color:var(--err)}
-  .msg.ok{color:var(--ok)}
+  .msg{height:22px;margin-top:10px;font-size:14px;opacity:.9}.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
   .unlocked .left{transform:perspective(600px) rotateY(-70deg)}
   .unlocked .right{transform:perspective(600px) rotateY(70deg)}
-  .unlocked .lock{box-shadow:0 0 0 2px #2a3147,0 0 60px rgba(255,121,198,.65),inset 0 0 24px rgba(0,0,0,.7)}
+  .unlocked .lock{box-shadow:0 0 0 2px #2a3147,0 0 44px rgba(67,233,123,.28),inset 0 0 24px rgba(0,0,0,.7)}
   .fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity var(--fade) ease}
   .fade.show{opacity:.95;pointer-events:auto}
   .letter{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px}
-  .card{width:min(92vw,700px);background:#0b0d14;color:#f7f4fb;border:1px solid #2a2f45;border-radius:16px;padding:26px;text-align:left;line-height:1.6;box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 60px rgba(255,77,166,.28)}
+  .card{width:min(92vw,700px);background:#0b0d14;color:#f7f4fb;border:1px solid #2a2f45;border-radius:16px;padding:26px;text-align:left;line-height:1.6;box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 60px rgba(255,77,166,.16)}
   .card h2{margin:0 0 10px;color:#ff79c6;font-size:20px}
   .close{margin-top:12px;background:#1a1f2e;color:#fff;border:1px solid #2a2f45;padding:8px 12px;border-radius:10px;cursor:pointer}
-  .shake{animation:shake .35s ease}
-  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .shake{animation:shake .35s ease}@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
   @media (prefers-reduced-motion:reduce){.left,.right,.fade{transition:none}}
 </style>
 </head>
@@ -63,9 +52,9 @@
     <div class="bar" aria-label="Enter year to unlock">
       <input id="year" class="field" inputmode="numeric" autocomplete="off" autocapitalize="off"
              spellcheck="false" placeholder="YYYY" maxlength="4" aria-label="Year (YYYY)" />
-      <button class="btn" id="btn" type="button">Unlock</button>
+      <button class="btn" id="btn">Unlock</button>
     </div>
-    <div class="msg" id="msg" aria-live="polite"></div>
+    <div class="msg" id="msg"></div>
   </div>
 
   <!-- sounds -->
@@ -76,18 +65,15 @@
   <div class="letter" id="letter">
     <div class="card">
       <h2>Letter</h2>
-      <p><em>Good. You’re listening.</em> Pop the trunk. You’ll find a TETRIS machine, an old machine, stubborn and half-broken. It won’t boot without a passcode.</p>
+      <p><em>Good. You’re listening.</em> Pop the trunk. You’ll find a TETRIS relic — an old machine, stubborn and half-broken. It won’t boot without a passcode.</p>
       <p>The passcode is stashed in the folder below. Get it. Then power the unit.</p>
-      <p><strong>Folder link:</strong>
-        <a id="folder" href="https://drive.google.com/drive/folders/1jzuzYnss4yxivgjXiZpRsJTGNOFlLHuV?usp=drive_link" target="_blank" rel="noopener">open folder</a>
-      </p>
-      <button class="close" id="close" type="button">Close</button>
+      <p><strong>Folder link:</strong> <a id="folderLink" href="#" target="_blank" rel="noopener">open folder</a></p>
+      <button class="close" id="close">Close</button>
     </div>
   </div>
 
 <script>
-'use strict';
-const CORRECT = "2007"; // şifre 2007
+const CORRECT = "1972";
 const input   = document.getElementById('year');
 const btn     = document.getElementById('btn');
 const msg     = document.getElementById('msg');
@@ -97,14 +83,17 @@ const letter  = document.getElementById('letter');
 const closeB  = document.getElementById('close');
 const keySnd  = document.getElementById('key');
 
+/* 👉 buraya klasör linkini koy */
+document.getElementById('folderLink').href = "#"; // e.g. "https://drive.google.com/..."
+
 input.focus();
 
-/* sadece rakam, max 4, tuş sesi */
+/* only digits, max 4, play tick */
 input.addEventListener('beforeinput', e=>{
   if(e.data && !/^\d$/.test(e.data)) e.preventDefault();
 });
 input.addEventListener('input', ()=>{
-  input.value = input.value.replace(/\D/g,'').slice(0,4);
+  input.value = (input.value.replace(/\D/g,'').slice(0,4));
   try{ keySnd.currentTime = 0; keySnd.play(); }catch(_){}
 });
 input.addEventListener('keydown', e=>{ if(e.key==='Enter') check(); });
@@ -112,8 +101,8 @@ btn.addEventListener('click', check);
 
 function check(){
   if(input.value.length !== 4){
-    feedback("4 rakam gir (YYYY).", true);
-    shake();
+    feedback("Enter 4 digits (YYYY).", true);
+    input.classList.add('shake'); setTimeout(()=>input.classList.remove('shake'), 360);
     return;
   }
   if(input.value === CORRECT){
@@ -122,17 +111,12 @@ function check(){
     setTimeout(()=>{ fade.classList.add('show'); letter.style.display='flex'; }, 700);
   }else{
     feedback("Wrong year.", true);
-    input.value = "";
-    shake();
+    input.value = ""; input.classList.add('shake'); setTimeout(()=>input.classList.remove('shake'), 360);
   }
 }
 function feedback(text, isErr=false, ok=false){
   msg.textContent = text;
   msg.className = 'msg' + (isErr ? ' err' : ok ? ' ok' : '');
-}
-function shake(){
-  input.classList.add('shake');
-  setTimeout(()=>input.classList.remove('shake'), 360);
 }
 closeB.addEventListener('click', ()=>{
   fade.classList.remove('show');
