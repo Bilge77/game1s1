@@ -35,6 +35,7 @@
     }
     .riddleGlow p{margin:0 0 10px}
     .riddleGlow p:last-child{margin:0}
+    .riddleGlow b{letter-spacing:.5px}
     @keyframes glow{
       0%,100%{ text-shadow:0 0 3px #fff, 0 0 8px #fff, 0 0 18px rgba(255,255,255,.8) }
       50%   { text-shadow:0 0 6px #fff, 0 0 14px #fff, 0 0 32px rgba(255,255,255,1) }
@@ -74,7 +75,7 @@
     const cv=document.getElementById('cv');
     const ctx=cv.getContext('2d');
 
-    const TILE=40, ROWS=12, COLS=12;
+    const TILE=40; const ROWS=12, COLS=12;
 
     const LEVELS=[
       [
@@ -107,6 +108,7 @@
       ],
     ];
 
+    let levelIndex=0;
     let map=[], player={r:0,c:0};
     let heartBox={r:0,c:0}, spadeBox={r:0,c:0}, diamondBox=null, clubBox=null;
     let heartPad={r:0,c:0}, spadePad={r:0,c:0};
@@ -268,7 +270,6 @@
       ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#000'; ctx.stroke(); ctx.restore();
     }
 
-    // celebration overlay with auto-fit URL + dark strip
     function drawCelebration(){
       for(const p of particles){
         ctx.save(); ctx.globalAlpha=Math.max(0, p.life); ctx.fillStyle=p.color;
@@ -282,37 +283,14 @@
         ctx.save(); ctx.strokeStyle=pd.color; ctx.globalAlpha=0.5; ctx.lineWidth=3;
         ctx.beginPath(); ctx.arc(x,y,r0,0,Math.PI*2); ctx.stroke(); ctx.restore();
       }
-
-      // === URL metni (auto-fit + arka şerit) ===
-      const urlText = 'https://bilge77.github.io/game1s1/sifre7.html';
-      const paddingX = 10, paddingY = 6;
-      const maxWidth = cv.width - paddingX * 2;
-      let fontSize = 20;
-      ctx.font = `bold ${fontSize}px ui-monospace, monospace`;
-      while (ctx.measureText(urlText).width > maxWidth && fontSize > 10) {
-        fontSize -= 1; ctx.font = `bold ${fontSize}px ui-monospace, monospace`;
-      }
-      const m = ctx.measureText(urlText);
-      const textW = m.width, textH = fontSize * 1.25;
-      const tx = (cv.width - textW) / 2, ty = 8;
-      const baselineY = ty + textH * 0.72;
-
-      ctx.save();
-      ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      ctx.fillRect(tx - paddingX, ty, textW + paddingX*2, textH + paddingY);
-      ctx.fillStyle = '#a64dff';
-      ctx.shadowColor = '#a64dff';
-      ctx.shadowBlur = 16;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'alphabetic';
-      ctx.fillText(urlText, tx, baselineY);
+      ctx.save(); ctx.font='bold 36px ui-monospace, monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.shadowColor=getVar('--neon'); ctx.shadowBlur=18; ctx.fillStyle=getVar('--neon');
+      ctx.fillText('https://bilge77.github.io/game1s1/sifre7.html', cv.width/2, 30);
       ctx.restore();
-
       const k = (Math.sin(pulseT*5)*0.5+0.5)*0.8+0.2;
       ctx.save(); ctx.strokeStyle=`rgba(255,213,74,${k})`; ctx.lineWidth=4; ctx.strokeRect(4,4,cv.width-8,cv.height-8); ctx.restore();
     }
 
-    // keyboard only
     document.addEventListener('keydown',e=>{
       const k=e.key.toLowerCase();
       if(k==='arrowup'||k==='w') return tryMove(-1,0);
@@ -321,8 +299,7 @@
       if(k==='arrowright'||k==='d') return tryMove(0,1);
     });
 
-    // start
-    loadLevel(0);
+    loadLevel(levelIndex);
   })();
   </script>
 </body>
