@@ -8,22 +8,22 @@
   :root{
     --bg1:#ffe6f2; --bg2:#ffd5ea;
     --pink:#ff66b2; --pink2:#ff99c8; --neon:#ff80ab;
+    --ink:#221822;
+    --paper:#fffdf8;
     --shadow:0 18px 50px rgba(0,0,0,.18);
     --fade-ms:900ms;
   }
-  html,body{height:100%}
   body{
     margin:0; font-family:ui-sans-serif, system-ui, Arial, Helvetica, sans-serif;
     background: radial-gradient(1200px 800px at 50% 20%, var(--bg2), var(--bg1));
-    color:#111; display:flex; align-items:center; justify-content:center;
-    overflow:hidden; padding:20px;
+    color:var(--ink); display:flex; align-items:center; justify-content:center;
+    overflow:hidden; height:100vh; padding:20px;
   }
   .wrap{width:min(92vw, 720px); text-align:center}
   h1{
     margin:0 0 16px; font-size:clamp(18px, 2.8vw, 26px); font-weight:700;
     color:#c2185b; text-shadow:0 0 10px rgba(255,102,178,.25);
   }
-
   .clock-card{
     border-radius:24px; padding:26px 20px 20px;
     background:linear-gradient(145deg, #fff, #fff4fa);
@@ -36,7 +36,6 @@
     color:var(--pink); text-shadow:0 0 12px var(--neon), 0 0 24px var(--neon);
     margin-bottom:12px;
   }
-
   .face{
     position:relative; width:min(78vw, 440px); aspect-ratio:1/1; margin:0 auto 12px;
     border-radius:50%; background:#fff;
@@ -52,13 +51,11 @@
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
     width:14px; height:14px; border-radius:50%; background:#111; box-shadow:0 0 0 4px #fff;
   }
-  .hand{
-    position:absolute; left:50%; top:50%; transform-origin:50% 90%;
+  .hand{position:absolute; left:50%; top:50%; transform-origin:50% 90%;
     transform: translate(-50%,-90%) rotate(0deg);
     border-radius:12px; cursor:grab; user-select:none; touch-action:none;
     filter: drop-shadow(0 2px 2px rgba(0,0,0,.12));
   }
-  .hand:active{cursor:grabbing}
   .hand.minute{width:6px; height:42%; background:#ff3f8f;}
   .hand.hour{width:8px; height:30%; background:#111;}
   .hand.cap{
@@ -68,32 +65,45 @@
   }
 
   .fade{
-    position:fixed; inset:0; background:#000; opacity:0; pointer-events:none;
+    position:fixed; inset:0; background:rgba(0,0,0,.55); opacity:0; pointer-events:none;
     transition:opacity var(--fade-ms) ease;
   }
-  .fade.show{opacity:1}
+  .fade.show{opacity:1; pointer-events:auto}
+
   .letter-wrap{
     position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-    padding:24px;
+    padding:24px; z-index:20;
   }
+  .letter-wrap.show{display:flex}
+
   .letter{
-    width:min(92vw, 720px); background:#fffdf8; color:#222;
-    border-radius:16px; box-shadow:0 30px 80px rgba(0,0,0,.35);
+    width:min(92vw, 760px); max-height: min(90vh, 880px);
+    background: var(--paper);
+    color: var(--ink);
+    border-radius:18px; box-shadow:0 30px 80px rgba(0,0,0,.35);
     border:1px solid rgba(0,0,0,.08);
-    padding:28px 26px; line-height:1.6; font-size:clamp(14px, 2.2vw, 18px);
-    position:relative;
+    padding:28px 26px; line-height:1.7; font-size:clamp(14px, 2.2vw, 18px);
+    position:relative; overflow-y:auto; scrollbar-gutter:stable;
   }
-  .letter h2{margin:0 0 10px; color:#c2185b;}
+  .letter h2{margin:0 0 12px; color:#c2185b; font-size:1.2em;}
+  .letter p{margin:0 0 1em;}
+  .letter .lede::first-letter{
+    font-size:1.9em; line-height:1; font-weight:700; color:#c2185b;
+    padding-right:6px; float:left; font-family: Georgia, "Times New Roman", serif;
+  }
   .btn-reset{
     margin-top:14px; background:#ff66b2; border:none; color:#fff; font-weight:700;
-    padding:10px 14px; border-radius:10px; cursor:pointer;
+    padding:10px 14px; border-radius:10px; cursor:pointer; box-shadow:0 8px 20px rgba(255,102,178,.35);
+  }
+  .btn-close{
+    position:absolute; right:14px; top:12px; background:#222; color:#fff; font-weight:600;
+    padding:6px 10px; border-radius:8px; border:none; cursor:pointer;
   }
 </style>
 </head>
 <body>
   <div class="wrap" id="app">
     <h1>Do you remember the time?</h1>
-
     <div class="clock-card">
       <div class="digital" id="digital">--:--</div>
       <div class="face" id="face">
@@ -110,27 +120,21 @@
 
   <div class="letter-wrap" id="letterWrap">
     <div class="letter">
+      <button class="btn-close" id="closeBtn">×</button>
       <h2>Letter</h2>
-      <div id="letterText">
-        My love, my Amy, Lately, my mind has been unsettled, clouded. I feel as if I am drifting inside a fog where shapes blur and time bends. And yet, in the middle of all this confusion, I see something strange: the long, misty journey within the depths of my thoughts begins to glow pink. I don’t know why. Perhaps it is your presence that turns even the heaviest fog into a color that feels alive.
-
-This haze inside me has its reason. I have begun to realize that what ties us together is not limited to this single universe. Somehow, I have sensed that we exist beyond this world, side by side in other places, in other versions of reality. It overwhelms me. And it makes me want to learn everything I can, no matter how impossible it may seem.
-
-Since losing you here, I have searched endlessly. I walked through memories, I opened every door I could find, I chased after the smallest fragments of you—an echo in a dream, a familiar scent in a crowded street, a shadow that reminded me of your posture. And in that search, I found myself slipping through cracks, falling into other universes. Isn’t it strange? That in looking for you here, I discover you elsewhere. Sometimes I wonder if I am simply losing my mind. But then, madness has never felt so close to truth.
-
-I confess: part of me longs not for answers but for surrender. I want to sink into that pink mist and let it surround me, let it erase the edges of what is real and what is imagined. Perhaps this letter is nothing more than one of my calls into that fog. Perhaps it will never reach you here. Yet maybe, just maybe, it will find its way to some version of you out there, in a place where letters still carry whispers between stars.
-
-I want to believe that no matter the world, I will find you. I will cook for you in every kitchen, stir the same pots, laugh at the same clumsy mistakes. I will share with you those sweet moments of silence at home, when the night hums quietly and the smallest gestures carry the greatest weight—like the way you asked for water, and the way I would bring it without a word. I have loved every expression on your face, every spark of light in your eyes, every soft collapse into laughter. You are the one with whom time becomes gentle, the one who fits into my rhythm without effort, the one with whom I can attempt everything.
-
-If there are endless universes, then in each one I will write you a letter like this. In each one, I will search, I will call, I will try to reach across the fog. And if one day, in one of those worlds, I finally place this letter in your hands, I hope you will understand: I have loved you not once, but countless times. I have followed you through the folds of reality itself. And I will keep following, until every fog turns pink again.
-      </div>
+      <p class="lede">My love, my Amy, lately, my mind has been unsettled, clouded. I feel as if I am drifting inside a fog where shapes blur and time bends. And yet, in the middle of all this confusion, I see something strange: the long, misty journey within the depths of my thoughts begins to glow pink.</p>
+      <p>This haze inside me has its reason. I have begun to realize that what ties us together is not limited to this single universe. Somehow, I have sensed that we exist beyond this world, side by side in other places, in other versions of reality.</p>
+      <p>Since losing you here, I have searched endlessly. I walked through memories, I opened every door I could find, I chased after the smallest fragments of you—an echo in a dream, a familiar scent in a crowded street, a shadow that reminded me of your posture. And in that search, I found myself slipping through cracks, falling into other universes. Isn’t it strange? That in looking for you here, I discover you elsewhere.</p>
+      <p>I confess: part of me longs not for answers but for surrender. I want to sink into that pink mist and let it surround me, let it erase the edges of what is real and what is imagined. Perhaps this letter is nothing more than one of my calls into that fog. Perhaps it will never reach you here. Yet maybe, just maybe, it will find its way to some version of you out there.</p>
+      <p>I want to believe that no matter the world, I will find you. I will cook for you in every kitchen, stir the same pots, laugh at the same clumsy mistakes. I will share with you those sweet moments of silence at home, when the night hums quietly and the smallest gestures carry the greatest weight—like the way you asked for water, and the way I would bring it without a word.</p>
+      <p>If there are endless universes, then in each one I will write you a letter like this. In each one, I will search, I will call, I will try to reach across the fog. And if one day, in one of those worlds, I finally place this letter in your hands, I hope you will understand: I have loved you not once, but countless times. I have followed you through the folds of reality itself. And I will keep following, until every fog turns pink again.</p>
       <button class="btn-reset" id="againBtn">Reset puzzle</button>
     </div>
   </div>
 
 <script>
-const TARGET_HOUR   = 9;   // 09
-const TARGET_MINUTE = 7;   // 07
+const TARGET_HOUR   = 9;
+const TARGET_MINUTE = 7;
 const EXACT_MATCH   = true;
 
 const ticksEl = document.getElementById('ticks');
@@ -149,6 +153,7 @@ const digital=document.getElementById('digital');
 const fadeEl=document.getElementById('fade');
 const letterW=document.getElementById('letterWrap');
 const againBtn=document.getElementById('againBtn');
+const closeBtn=document.getElementById('closeBtn');
 
 function pad2(n){return String(n).padStart(2,'0')}
 function hourAngle(hr,min){return ((hr%12)*30)+(min*0.5)}
@@ -192,10 +197,7 @@ function triggerSolved(){
   solved=true;
   setTimeout(()=>{
     fadeEl.classList.add('show');
-    setTimeout(()=>{
-      letterW.style.display='flex';
-      letterW.setAttribute('aria-hidden','false');
-    },900);
+    setTimeout(()=>{ letterW.classList.add('show'); },900);
   },200);
 }
 function checkSolved(){
@@ -208,10 +210,13 @@ function checkSolved(){
 }
 
 againBtn.addEventListener('click',()=>{
-  solved=false; fadeEl.classList.remove('show'); letterW.style.display='none';
+  solved=false; fadeEl.classList.remove('show'); letterW.classList.remove('show');
+});
+closeBtn.addEventListener('click',()=>{
+  fadeEl.classList.remove('show'); letterW.classList.remove('show');
+  solved=false;
 });
 setHands(10,10,false);
 </script>
 </body>
 </html>
-
